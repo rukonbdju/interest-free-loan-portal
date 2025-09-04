@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { EmailIcon, LockIcon } from '../components/icons';
+import { EmailIcon, LockIcon } from '../../components/icons';
 
 // Main component for the login form
 export default function App() {

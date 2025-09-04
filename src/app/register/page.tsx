@@ -1,7 +1,7 @@
 'use client'
 import Link from 'next/link';
 import React, { useState } from 'react';
-import { EmailIcon, PhoneIcon, UserIcon, AddressIcon, BriefcaseIcon, LockIcon } from '../components/icons';
+import { EmailIcon, PhoneIcon, UserIcon, AddressIcon, BriefcaseIcon, LockIcon } from '../../components/icons';
 
 // Main component for the registration form
 export default function App() {
