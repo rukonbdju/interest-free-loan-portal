@@ -1,10 +1,9 @@
-import { BellIcon, MenuIcon } from "../icons"
+'use client'
 import React from "react";
-type Props = {
-    isSidebarOpen: boolean,
-    setSidebarOpen: React.Dispatch<React.SetStateAction<boolean>>
-}
-const Header = ({ isSidebarOpen, setSidebarOpen }: Props) => {
+import { useLayout } from "@/contexts/layout-context";
+import { BellIcon, MenuIcon } from "../icons"
+const Header = () => {
+    const { isSidebarOpen, setIsSidebarOpen } = useLayout()
 
     const mockUser = {
         name: 'Abdullah Ahmed',
@@ -14,7 +13,7 @@ const Header = ({ isSidebarOpen, setSidebarOpen }: Props) => {
         <header className="sticky top-0 bg-white/80 backdrop-blur-lg z-30 border-b border-gray-200">
             <div className="flex items-center justify-between h-20 px-4 sm:px-6 lg:px-8">
                 {/* Mobile Menu Button */}
-                <button className="md:hidden text-gray-600" onClick={() => setSidebarOpen(!isSidebarOpen)}>
+                <button className="md:hidden text-gray-600" onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
                     <MenuIcon className="w-6 h-6" />
                 </button>
 
