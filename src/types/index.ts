@@ -18,3 +18,23 @@ export interface LoanRequest {
     amountFunded: number;
     deadline: string;
 }
+
+export interface Loan {
+    id: string;
+    borrower: string;
+    amount: number;
+    startDate: string;
+    dueDate: string;
+    status: 'Active' | 'Paid' | 'Overdue';
+    remainingBalance: number;
+}
+
+export interface Borrower {
+    id: string;
+    name: string;
+    phone: string;
+    totalLoansTaken: number;
+    activeLoans: number;
+    outstandingBalance: number;
+    status: 'Active' | 'Overdue';
+}
