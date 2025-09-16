@@ -60,7 +60,6 @@ export default function LoanDetailPage() {
     const [loan, setLoan] = useState<Loan>(mockLoan);
 
     const getRepaymentChartData = () => {
-        const totalAmount = loan.amount;
         const paidAmount = loan.repayments
             .filter((r) => r.status === 'Paid')
             .reduce((sum, r) => sum + r.amount, 0);
