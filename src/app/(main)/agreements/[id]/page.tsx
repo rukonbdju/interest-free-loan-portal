@@ -12,13 +12,6 @@ interface Agreement {
     fullText: string;
 }
 
-interface SingleAgreementPageProps {
-    agreement: Agreement;
-    onDownload: (id: string) => void;
-    onRegenerate?: (id: string) => void;
-    onBack: () => void;
-}
-
 const agreementsData: Agreement = {
     id: 'LA-2023-001',
     borrowerName: 'Jane Doe',
