@@ -18,30 +18,26 @@ const ChangePassword = ({ isEditing, setIsEditing }: ChangePasswordProps) => {
 
     // Handles the password change logic
     const handlePasswordChange = () => {
-        // 1. Check if new passwords match
+
         if (newPassword !== confirmNewPassword) {
             setPasswordError('New passwords do not match.');
             return;
         }
 
-        // 2. Check if the current password is correct
         if (currentPassword !== storedPassword) {
             setPasswordError('Incorrect current password.');
             return;
         }
 
-        // 3. Simple validation for new password length
         if (newPassword.length < 6) {
             setPasswordError('Password must be at least 6 characters long.');
             return;
         }
 
-        // If all checks pass, update the password and show success message
         setStoredPassword(newPassword);
         setPasswordError('');
         setShowPasswordModal(false);
 
-        // Clear the input fields for security
         setCurrentPassword('');
         setNewPassword('');
         setConfirmNewPassword('');
@@ -59,7 +55,7 @@ const ChangePassword = ({ isEditing, setIsEditing }: ChangePasswordProps) => {
                         value="********"
                         readOnly
                         disabled={!isEditing}
-                        className="w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent transition disabled:cursor-not-allowed"
+                        className="w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition disabled:cursor-not-allowed"
                     />
                     {isEditing && (
                         <button

@@ -9,18 +9,17 @@ import React, {
     ReactNode,
 } from "react";
 
-interface User {
+export interface UserDTO {
     _id: string;
     name: string;
-    deviceSN: string
-    username: string;
+    phone: string;
     email: string;
-    logo?: string;
+    address: string;
 }
 
 export interface AuthContextType {
-    user: User | null;
-    setUser: React.Dispatch<React.SetStateAction<User | null>>
+    user: UserDTO | null;
+    setUser: React.Dispatch<React.SetStateAction<UserDTO | null>>
     loading: boolean;
     login: (email: string, password: string) => Promise<void>;
     logout: () => Promise<void>;
@@ -31,7 +30,7 @@ export interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<UserDTO | null>(null);
     const [loading, setLoading] = useState(true);
 
     const refreshUser = async () => {

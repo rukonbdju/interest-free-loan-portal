@@ -5,25 +5,14 @@ import { useAuth } from '@/contexts/auth-context';
 import { InputField } from '@/components/shared/input-field';
 import ChangePassword from '@/components/auth/change-password';
 
-// Interface for user data props
-interface UserProfile {
-    name: string;
-    email: string;
-    phone?: string;
-    address?: string;
-}
 
 
 
 const ProfilePage: React.FC = () => {
     const { user } = useAuth()
     const [isEditing, setIsEditing] = useState(false);
-    const [profile, setProfile] = useState<UserProfile>({
-        name: 'Alexandra Collins',
-        email: 'alexandra.c@example.com',
-        phone: '555-0102',
-        address: '123 Maple Street, Anytown, USA',
-    });
+    console.log(isEditing)
+    const [profile, setProfile] = useState({});
 
 
     // Handles updates to profile data
@@ -32,10 +21,10 @@ const ProfilePage: React.FC = () => {
         setProfile(prev => ({ ...prev, [name]: value }));
     };
 
-    // Toggles editing mode and clears messages
-    const toggleEditing = () => {
-        setIsEditing(!isEditing);
-    };
+    const handleUpdateProfile = () => {
+        console.log(profile)
+        setIsEditing(false)
+    }
 
 
     return (
@@ -56,14 +45,6 @@ const ProfilePage: React.FC = () => {
                         <p className="text-md text-gray-500">{user?.email}</p>
                     </div>
 
-                    {/* Action Button */}
-                    <button
-                        onClick={toggleEditing}
-                        className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 text-white font-semibold shadow-md hover:bg-teal-700 transition-all duration-200"
-                    >
-                        {isEditing ? <Save size={18} /> : <Edit size={18} />}
-                        {isEditing ? 'Save Changes' : 'Edit Profile'}
-                    </button>
                 </div>
 
                 {/* Separator */}
@@ -72,12 +53,44 @@ const ProfilePage: React.FC = () => {
                 {/* Profile Details Form */}
                 <div className="space-y-6">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <InputField icon={<User />} label="Full Name" name="name" value={profile.name} disabled={!isEditing} onChange={handleProfileInputChange} />
-                        <InputField icon={<Mail />} label="Email Address" name="email" value={profile.email} disabled={!isEditing} onChange={handleProfileInputChange} type="email" />
+                        <InputField icon={<User />} label="Full Name" name="name" defaultValue={user?.name || ""} disabled={!isEditing} onChange={handleProfileInputChange} />
+                        <InputField icon={<Mail />} label="Email Address" name="email" defaultValue={user?.email || ""} disabled={!isEditing} onChange={handleProfileInputChange} type="email" />
                     </div>
-                    <InputField icon={<Phone />} label="Phone Number" name="phone" value={profile.phone || ''} disabled={!isEditing} onChange={handleProfileInputChange} />
-                    <InputField icon={<Home />} label="Address" name="address" value={profile.address || ''} disabled={!isEditing} onChange={handleProfileInputChange} />
+                    <InputField icon={<Phone />} label="Phone Number" name="phone" defaultValue={user?.phone || ''} disabled={!isEditing} onChange={handleProfileInputChange} />
+                    <InputField icon={<Home />} label="Address" name="address" defaultValue={user?.address || ''} disabled={!isEditing} onChange={handleProfileInputChange} />
                     <ChangePassword isEditing={isEditing} setIsEditing={setIsEditing} />
+                    <div className='flex justify-end items-center gap-4'>
+
+                        {isEditing && <button
+                            onClick={() => setIsEditing(false)}
+                            className="px-6 py-2.5 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-all duration-200"
+                        >
+                            Cancel
+                        </button>}
+                        <button
+                            onClick={() => setIsEditing(false)}
+                            className="px-6 py-2.5 rounded-lg bg-gray-200 text-gray-700 font-semibold hover:bg-gray-300 transition-all duration-200"
+                        >
+                            Reset
+                        </button>
+                        {
+                            isEditing ? <button
+                                disabled={Object.entries(profile).length > 0}
+                                onClick={handleUpdateProfile}
+                                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 text-white font-semibold shadow-md hover:bg-teal-700 transition-all duration-200"
+                            >
+                                <Save size={18} /> Save Change
+                            </button> : <button
+
+                                onClick={() => setIsEditing(true)}
+                                className="flex items-center justify-center gap-2 px-6 py-2.5 rounded-lg bg-teal-600 text-white font-semibold shadow-md hover:bg-teal-700 transition-all duration-200"
+                            >
+                                <Edit size={18} /> Edit Profile
+                            </button>
+                        }
+
+                    </div>
+
                 </div>
             </div>
 
