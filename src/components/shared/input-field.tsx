@@ -8,9 +8,10 @@ export interface InputFieldProps {
     disabled?: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type?: string;
+    required?: boolean
 }
 
-export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value, disabled = false, defaultValue, onChange, type = 'text' }) => {
+export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value, required = false, disabled = false, defaultValue, onChange, type = 'text' }) => {
     return (
         <div className="flex flex-col">
             <label className="text-sm font-medium text-gray-600 mb-1">{label}</label>
@@ -19,6 +20,7 @@ export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value
                     {icon}
                 </div>
                 <input
+                    required={required}
                     type={type}
                     name={name}
                     value={value}

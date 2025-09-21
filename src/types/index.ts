@@ -30,11 +30,10 @@ export interface Loan {
 }
 
 export interface Borrower {
-    id: string;
+    _id: string;
     name: string;
     phone: string;
-    totalLoansTaken: number;
-    activeLoans: number;
-    outstandingBalance: number;
-    status: 'Active' | 'Overdue';
+    email: string;
+    nid: string;
+    address: string;
 }
