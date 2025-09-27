@@ -37,3 +37,24 @@ export interface Borrower {
     nid: string;
     address: string;
 }
+
+export type OneTimePlan = {
+    dueDate: string;
+};
+
+export type InstallmentPlan = {
+    numberOfInstallments: string;
+    cycle: string;
+    firstDueDate: string;
+};
+
+export type LoanFormData = {
+    borrowerId: string;
+    totalAmount: string;
+    currency: string;
+    disbursementDate: string;
+    disbursementMethod: string;
+    repaymentPlan: string;
+    oneTimePlan: OneTimePlan;
+    installmentPlan: InstallmentPlan;
+};
