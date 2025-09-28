@@ -6,12 +6,15 @@ import { InputField, SelectField } from "../shared/input-field";
 import { useFetchData } from "@/hooks/useFetchData";
 import { Borrower, LoanFormData } from "@/types";
 import { useAuth } from "@/contexts/auth-context";
+import { Button } from "../shared/button";
+import { baseUrl } from "@/utils/api-url";
 
 const CreateLoan = () => {
     const { user } = useAuth();
     const { data: borrowers } = useFetchData<Borrower[]>(
         `/borrowers/creator/${user?._id}`
     );
+    const [loading, setLoading] = useState(false)
 
     const borrowerOptions = useMemo(() => {
         return borrowers?.map((item) => ({
@@ -21,12 +24,12 @@ const CreateLoan = () => {
     }, [borrowers]);
 
     const [formData, setFormData] = useState<LoanFormData>({
-        borrowerId: "",
+        borrowerId: borrowerOptions[0]?.value ?? "",
         totalAmount: "",
         currency: "BDT",
         disbursementDate: "",
-        disbursementMethod: "",
-        repaymentPlan: "",
+        disbursementMethod: "Cash",
+        repaymentPlan: "one_time",
         oneTimePlan: { dueDate: "" },
         installmentPlan: { numberOfInstallments: "", cycle: "", firstDueDate: "" },
     });
@@ -57,11 +60,57 @@ const CreateLoan = () => {
         };
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         console.log("Submitting Loan Data:", formData);
-        // TODO: call your API POST /loans here
+        setLoading(true)
+        try {
+            const res = await fetch(baseUrl + `/loans`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    'content-type': 'application/json'
+                },
+                body: JSON.stringify(formData)
+            })
+            const result = await res.json()
+            console.log(result)
+        } catch (error) {
+            console.log(error)
+        } finally {
+            setLoading(false)
+        }
     };
+
+    // 🔹 Generate installment schedule
+    const installmentSchedule = useMemo(() => {
+        if (
+            formData.repaymentPlan !== "installments" ||
+            !formData.installmentPlan.numberOfInstallments ||
+            !formData.installmentPlan.firstDueDate ||
+            !formData.totalAmount
+        ) return [];
+
+        const numberOfInstallments = parseInt(formData.installmentPlan.numberOfInstallments);
+        const installmentAmount = parseFloat(formData.totalAmount) / numberOfInstallments;
+
+        const dueDate = new Date(formData.installmentPlan.firstDueDate);
+        const cycleDays =
+            formData.installmentPlan.cycle === "30days" ? 30 :
+                formData.installmentPlan.cycle === "60days" ? 60 :
+                    formData.installmentPlan.cycle === "90days" ? 90 : 0;
+
+        const schedule = [];
+        for (let i = 0; i < numberOfInstallments; i++) {
+            schedule.push({
+                installmentNo: i + 1,
+                amount: installmentAmount.toFixed(2),
+                dueDate: new Date(dueDate).toISOString().split("T")[0], // yyyy-mm-dd
+            });
+            dueDate.setDate(dueDate.getDate() + cycleDays);
+        }
+        return schedule;
+    }, [formData]);
 
     return (
         <div className="bg-white rounded-3xl shadow-xl w-full p-6 sm:p-8">
@@ -105,6 +154,7 @@ const CreateLoan = () => {
                         { label: "BDT", value: "BDT" },
                         { label: "USD", value: "USD" },
                     ]}
+                    placeholder="Select currency"
                     required
                 />
 
@@ -131,7 +181,7 @@ const CreateLoan = () => {
                         { label: "Bkash", value: "Bkash" },
                         { label: "Bank", value: "Bank" },
                     ]}
-                    placeholder="Select Installment Cycle"
+                    placeholder="Select s method"
                     required
                 />
 
@@ -146,6 +196,7 @@ const CreateLoan = () => {
                         { label: "One Time", value: "one_time" },
                         { label: "Installments", value: "installments" },
                     ]}
+                    placeholder="Select repayment plan"
                     required
                 />
 
@@ -194,6 +245,7 @@ const CreateLoan = () => {
                                 { label: "60 days", value: "60days" },
                                 { label: "90 days", value: "90days" },
                             ]}
+                            placeholder="Choose installment cycle"
                             required
                         />
                         <InputField
@@ -213,14 +265,36 @@ const CreateLoan = () => {
                         />
                     </>
                 )}
-
+                {/* 🔹 Show installment preview table */}
+                {formData.repaymentPlan === "installments" && installmentSchedule.length > 0 && (
+                    <div className="col-span-3">
+                        <h3 className="text-lg font-semibold mb-4">Installment Schedule</h3>
+                        <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
+                            <thead className="bg-gray-100">
+                                <tr>
+                                    <th className="p-2 text-left">#</th>
+                                    <th className="p-2 text-left">Amount ({formData.currency})</th>
+                                    <th className="p-2 text-left">Due Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {installmentSchedule.map((inst) => (
+                                    <tr key={inst.installmentNo} className="border-t">
+                                        <td className="p-2">{inst.installmentNo}</td>
+                                        <td className="p-2">{inst.amount}</td>
+                                        <td className="p-2">{inst.dueDate}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
                 {/* Submit Button */}
                 <div className="col-span-full flex justify-end">
-                    <button type="submit" className="px-6">
-                        Create Loan
-                    </button>
+                    <Button disabled={loading} type="submit">Submit</Button>
                 </div>
             </form>
+
         </div>
     );
 };

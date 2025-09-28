@@ -58,14 +58,14 @@ export const SelectField: React.FC<SelectFieldProps> = ({ icon, label, name, val
                 <select
                     required={required}
                     name={name}
-                    value={value}
+                    value={value || ""}
                     defaultValue={defaultValue}
                     onChange={onChange}
                     disabled={disabled}
                     className="w-full pl-10 pr-3 py-3 bg-gray-50 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-transparent transition disabled:cursor-not-allowed"
                 >
                     {/* Placeholder option */}
-                    <option value={placeholder || ""} disabled={required}>
+                    <option value='' disabled={required}>
                         {placeholder}
                     </option>
 
