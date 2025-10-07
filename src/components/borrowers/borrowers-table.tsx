@@ -4,6 +4,7 @@ import { useFetchData } from "@/hooks/useFetchData";
 import { Borrower } from "@/types";
 import { Eye, Pencil, Trash } from "lucide-react";
 import Link from "next/link";
+import DeleteBorrower from "./delete-borrower";
 
 const BorrowersTable = () => {
     const { user } = useAuth()
@@ -78,18 +79,14 @@ const BorrowersTable = () => {
                                         <Link title='View' className="text-gray-500 hover:text-gray-900 transition-colors" href={"/borrowers/" + borrower._id}>
                                             <Eye size={18} />
                                         </Link>
-                                        <button
+                                        <Link
+                                            href={`/borrowers/${borrower._id}/edit`}
                                             title="Edit"
                                             className="text-gray-500 hover:text-gray-900 transition-colors"
                                         >
                                             <Pencil size={18} />
-                                        </button>
-                                        <button
-                                            title="Delete"
-                                            className="text-gray-500 hover:text-gray-900 transition-colors"
-                                        >
-                                            <Trash size={18} />
-                                        </button>
+                                        </Link>
+                                        <DeleteBorrower id={borrower._id} />
                                     </div>
                                 </td>
                             </tr>
