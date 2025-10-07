@@ -1,7 +1,7 @@
 import { baseUrl } from "@/utils/api-url";
 import { useEffect, useState } from "react";
 
-interface FetchState<T> {
+export interface FetchState<T> {
     data: T | null;
     loading: boolean;
     error: string | null;
@@ -54,5 +54,5 @@ export function useFetchData<T = unknown>(url: string) {
         };
     }, [url]);
 
-    return state;
+    return { ...state, setState };
 }

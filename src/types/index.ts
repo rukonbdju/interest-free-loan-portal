@@ -36,6 +36,9 @@ export interface Borrower {
     email: string;
     borrowerId: string;
     address: string;
+    createdBy: string;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export type OneTimePlan = {

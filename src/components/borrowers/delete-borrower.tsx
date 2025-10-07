@@ -3,8 +3,10 @@ import { useState } from "react";
 import DeleteConfirmationModal from "../shared/delete-modal"
 import { Trash, } from "lucide-react";
 import { baseUrl } from "@/utils/api-url";
+import { useBorrowers } from "@/contexts/borrower-context";
 
-const DeleteBorrower = ({ id }: { id: string }) => {
+const DeleteBorrower = ({ id, }: { id: string }) => {
+    const { deleteBorrower } = useBorrowers()
     const [isModalOpen, setIsModalOpen] = useState(false);
     const handleDelete = async () => {
         try {
@@ -14,6 +16,9 @@ const DeleteBorrower = ({ id }: { id: string }) => {
             })
             const result = await res.json()
             console.log(result)
+            if (result?.success) {
+                deleteBorrower(id)
+            }
         } catch (error) {
             console.log(error)
         }

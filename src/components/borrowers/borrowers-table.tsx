@@ -1,15 +1,12 @@
 'use client';
-import { useAuth } from "@/contexts/auth-context";
-import { useFetchData } from "@/hooks/useFetchData";
-import { Borrower } from "@/types";
-import { Eye, Pencil, Trash } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import DeleteBorrower from "./delete-borrower";
+import { useBorrowers } from "@/contexts/borrower-context";
 
 const BorrowersTable = () => {
-    const { user } = useAuth()
-    const { data } = useFetchData<Borrower[]>('/borrowers/creator/' + user?._id)
-    console.log(data)
+    const { borrowers } = useBorrowers()
+    console.log(borrowers)
     return (
         <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="min-w-full divide-y divide-gray-200">
@@ -55,8 +52,8 @@ const BorrowersTable = () => {
                     </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                    {data && data.length > 0 ? (
-                        data?.map((borrower) => (
+                    {borrowers && borrowers.length > 0 ? (
+                        borrowers?.map((borrower) => (
                             <tr key={borrower._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {borrower.borrowerId}
