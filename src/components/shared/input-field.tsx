@@ -5,13 +5,14 @@ export interface InputFieldProps {
     name: string;
     value?: string;
     defaultValue?: string;
+    placeholder?: string;
     disabled?: boolean;
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type?: string;
     required?: boolean
 }
 
-export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value, required = false, disabled = false, defaultValue, onChange, type = 'text' }) => {
+export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value, required = false, disabled = false, defaultValue, onChange, type = 'text', placeholder }) => {
     return (
         <div className="flex flex-col w-full">
             <label className="text-sm font-medium text-gray-600 mb-1">{label}</label>
@@ -20,6 +21,7 @@ export const InputField: React.FC<InputFieldProps> = ({ icon, label, name, value
                     {icon}
                 </div>
                 <input
+                    placeholder={placeholder}
                     required={required}
                     type={type}
                     name={name}

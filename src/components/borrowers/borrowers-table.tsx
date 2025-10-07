@@ -18,6 +18,12 @@ const BorrowersTable = () => {
                             scope="col"
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
+                            ID
+                        </th>
+                        <th
+                            scope="col"
+                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                        >
                             Name
                         </th>
                         <th
@@ -31,12 +37,6 @@ const BorrowersTable = () => {
                             className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
                             Email
-                        </th>
-                        <th
-                            scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                        >
-                            NID
                         </th>
                         <th
                             scope="col"
@@ -58,6 +58,9 @@ const BorrowersTable = () => {
                         data?.map((borrower) => (
                             <tr key={borrower._id}>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                                    {borrower.borrowerId}
+                                </td>
+                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                                     {borrower.name}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -65,9 +68,6 @@ const BorrowersTable = () => {
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {borrower.email}
-                                </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {borrower.nid}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {borrower.address}

@@ -34,7 +34,7 @@ export interface Borrower {
     name: string;
     phone: string;
     email: string;
-    nid: string;
+    borrowerId: string;
     address: string;
 }
 
