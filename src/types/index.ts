@@ -20,13 +20,16 @@ export interface LoanRequest {
 }
 
 export interface Loan {
-    id: string;
-    borrower: string;
+    _id: string;
+    loanId: string;
+    borrower: Borrower;
     amount: number;
-    startDate: string;
+    currency: string;
+    disbursementDate: string;
+    disbursementMethod: string;
     dueDate: string;
-    status: 'Active' | 'Paid' | 'Overdue';
-    remainingBalance: number;
+    createdAt: string;
+    updatedAt: string;
 }
 
 export interface Borrower {

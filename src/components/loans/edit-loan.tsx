@@ -7,22 +7,21 @@ import { baseUrl } from "@/utils/api-url";
 import { Button } from "../shared/button";
 import AlertBox from "../shared/alert";
 import { useFetchData } from "@/hooks/useFetchData";
-import { Borrower } from "@/types";
+import { Borrower, Loan } from "@/types";
+import { formatDate } from "@/utils/date-format";
+type LoanPropsType = {
+    loan: Loan
+}
 
-export const CreateLoan: React.FC = () => {
+export const EditLoanForm = ({ loan }: LoanPropsType) => {
     const { data } = useFetchData<Borrower[]>('/borrowers')
     console.log(data)
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
-    const [formData, setFormData] = useState({
-        loanId: "",
-        borrower: "",
-        amount: "",
-        currency: "",
-        disbursementDate: "",
-        disbursementMethod: "",
-        dueDate: "",
-    });
+    const [formData, setFormData] = useState({});
+    const disbursementDate = formatDate(loan.disbursementDate, 'YYYY-MM-DD');
+    const dueDate = formatDate(loan.dueDate, 'YYYY-MM-DD');
+    console.log({ disbursementDate, dueDate })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -35,26 +34,18 @@ export const CreateLoan: React.FC = () => {
         console.log(formData)
         setLoading(true)
         try {
-            const res = await fetch(baseUrl + '/loans', {
+            const res = await fetch(baseUrl + `/loans/${loan._id}`, {
                 credentials: 'include',
-                method: "POST",
+                method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, amount: Number(formData.amount) }),
+                body: JSON.stringify({ ...formData }),
             });
 
             const result = await res.json();
             console.log(result)
             if (result.success) {
-                setAlert({ type: 'success', message: 'Loan successfully created!' })
-                setFormData({
-                    loanId: "",
-                    borrower: "",
-                    amount: "",
-                    currency: "",
-                    disbursementDate: "",
-                    disbursementMethod: "",
-                    dueDate: "",
-                });
+                setAlert({ type: 'success', message: 'Loan successfully updated!' })
+
             } else {
                 console.log(result)
                 if (res?.status && res.status < 500) {
@@ -84,30 +75,24 @@ export const CreateLoan: React.FC = () => {
                     label="Loan ID"
                     name="loanId"
                     placeholder="eg. L-0001"
-                    value={formData.loanId}
-                    onChange={handleChange}
+                    value={loan.loanId}
                     required={true}
+                    disabled={true}
                 />
-                <SelectField
+                <InputField
                     icon={<User className="w-4 h-4" />}
                     label="Borrower"
                     name="borrower"
-                    value={formData.borrower}
-                    onChange={handleChange}
+                    value={`${loan.borrower.name} (${loan.borrower.borrowerId})`}
                     required={true}
-                >
-                    <option value="">Select borrower</option>
-                    {
-                        data?.map(item => <option value={item._id} key={item._id}>{item.name} ({item.borrowerId})</option>)
-                    }
-
-                </SelectField>
+                    disabled={true}
+                />
 
                 <InputField
                     icon={<DollarSign className="w-4 h-4" />}
                     label="Loan Amount"
                     name="amount"
-                    value={formData.amount}
+                    defaultValue={loan.amount}
                     onChange={handleChange}
                     type="number"
                     min={1}
@@ -117,7 +102,7 @@ export const CreateLoan: React.FC = () => {
                     icon={<ReceiptText className="w-4 h-4" />}
                     label="Currency"
                     name="currency"
-                    value={formData.currency}
+                    defaultValue={loan.currency}
                     onChange={handleChange}
                 >
                     <option value="">Select currency</option>
@@ -129,7 +114,7 @@ export const CreateLoan: React.FC = () => {
                     icon={<Calendar className="w-4 h-4" />}
                     label="Disbursement Date"
                     name="disbursementDate"
-                    value={formData.disbursementDate}
+                    defaultValue={disbursementDate}
                     onChange={handleChange}
                     type="date"
 
@@ -138,7 +123,7 @@ export const CreateLoan: React.FC = () => {
                     icon={<Receipt className="w-4 h-4" />}
                     label="Disbursement Method"
                     name="disbursementMethod"
-                    value={formData.disbursementMethod}
+                    defaultValue={loan.disbursementMethod}
                     onChange={handleChange}
                 >
                     <option value="">Select method</option>
@@ -150,7 +135,7 @@ export const CreateLoan: React.FC = () => {
                     icon={<Calendar className="w-4 h-4" />}
                     label="Due Date"
                     name="dueDate"
-                    value={formData.dueDate}
+                    defaultValue={dueDate}
                     onChange={handleChange}
                     type="date"
                 />

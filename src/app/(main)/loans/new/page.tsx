@@ -1,4 +1,5 @@
-import CreateLoan from "@/components/loans/create-loan";
+
+import { CreateLoan } from "@/components/loans/create-loan";
 import { List } from "lucide-react";
 import Link from "next/link";
 
