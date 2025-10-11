@@ -29,7 +29,7 @@ export const LoanProvider = ({ children }: { children: ReactNode }) => {
             if (!user?._id) return;
             setLoading(true);
             try {
-                const res = await fetch(baseUrl + `/loans/creator/${user._id}`, { method: "GET", credentials: 'include', cache: 'no-store' });
+                const res = await fetch(baseUrl + `/loans`, { method: "GET", credentials: 'include' });
                 const result = await res.json();
                 if (result?.success) {
                     setLoans(result.data || [])

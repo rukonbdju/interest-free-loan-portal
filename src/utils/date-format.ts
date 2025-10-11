@@ -1,4 +1,7 @@
 export const formatDate = (date: string, format?: string) => {
+    if (!date) {
+        return "--"
+    }
     const newDate = new Date(date);
     const d = String(newDate.getUTCDate()).padStart(2, '0');
     const m = String(newDate.getUTCMonth() + 1).padStart(2, '0');

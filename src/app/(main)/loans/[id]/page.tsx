@@ -6,7 +6,6 @@ import {
     Calendar,
     Wallet,
     Clock,
-    PlusCircle,
     FilePenLine,
     Mail,
     Phone,
@@ -18,6 +17,7 @@ import { useFetchData } from '@/hooks/useFetchData';
 import { useParams } from 'next/navigation';
 import { Loan } from '@/types';
 import Link from 'next/link';
+import PaymentHistory from '@/components/loans/payment-history';
 
 // Function to format date
 const formatDate = (dateString: string) => {
@@ -41,11 +41,17 @@ const getDaysRemaining = (endDate: string) => {
 // --- MAIN COMPONENT ---
 const LoanDetailsPage: FC = () => {
     const params = useParams();
-    const { data } = useFetchData<Loan>(`/loans/${params.id}`)
-    const paidAmount = 500;
+    const { data, loading } = useFetchData<Loan>(`/loans/${params.id}`)
+    console.log(data)
+    const paidAmount = data?.payments.reduce((sum, item) => sum + (item.paymentAmount || 0), 0) || 0;
     const totalAmount = data?.amount;
+    console.log(totalAmount)
     const progressPercentage = totalAmount ? (paidAmount / totalAmount) * 100 : 0;
     const daysRemaining = getDaysRemaining(data?.dueDate || '');
+
+    if (loading) {
+        return "Loading..."
+    }
 
     return (
         <div className="bg-gray-50  min-h-screen">
@@ -125,48 +131,7 @@ const LoanDetailsPage: FC = () => {
                         </div>
 
                         {/* Payment History */}
-                        <div className="bg-white  rounded-xl shadow-md border border-gray-200 ">
-                            <div className='flex gap-2 justify-between items-center p-6 border-b border-gray-200 '>
-                                <h2 className="text-lg font-semibold text-gray-800">
-                                    Payment History
-                                </h2>
-                                <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                                    <PlusCircle size={18} />
-                                    Add Payment
-                                </button>
-                            </div>
-
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-sm text-left text-gray-500 ">
-                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
-                                        <tr>
-                                            <th scope="col" className="px-6 py-3">Date</th>
-                                            <th scope="col" className="px-6 py-3">Amount</th>
-                                            <th scope="col" className="px-6 py-3">Method</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {data?.payments?.map((payment) => (
-                                            <tr key={payment._id} className="bg-white  border-b  hover:bg-gray-50 ">
-                                                <td className="px-6 py-4 font-medium text-gray-900  whitespace-nowrap">{formatDate(payment.paymentDate)}</td>
-                                                <td className="px-6 py-4 font-semibold text-green-600 ">{totalAmount} {data?.currency}</td>
-                                                <td className="px-6 py-4">
-                                                    <div className="flex items-center gap-2">
-
-                                                        <span>{payment.paymentMethod}</span>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        ))}
-                                        {data?.payments?.length === 0 && (
-                                            <tr>
-                                                <td colSpan={3} className="text-center py-10 text-gray-500">No payments have been made yet.</td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
+                        <PaymentHistory loanId={data?._id || ""} borrowerId={data?.borrower?._id || ""} payments={data?.payments || []} totalAmount={totalAmount || 0} currency={data?.currency || ""} />
                     </div>
 
                     {/* Right Column */}
@@ -182,20 +147,20 @@ const LoanDetailsPage: FC = () => {
                                     <div>
                                         <p className="font-semibold text-gray-800 ">{data?.borrower?.name}</p>
                                         <p className="text-sm text-gray-500 ">
-                                            ID: {data?.borrower.borrowerId} | Created on {formatDate(data?.borrower?.createdAt || '')}
+                                            ID: {data?.borrower?.borrowerId} | Created on {formatDate(data?.borrower?.createdAt || '')}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Mail size={16} className="text-gray-400" />
-                                        <span className="text-gray-600">{data?.borrower.email}</span>
+                                        <span className="text-gray-600">{data?.borrower?.email}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <Phone size={16} className="text-gray-400" />
-                                        <span className="text-gray-600">{data?.borrower.phone}</span>
+                                        <span className="text-gray-600">{data?.borrower?.phone}</span>
                                     </div>
                                     <div className="flex items-center gap-3">
                                         <MapPin size={16} className="text-gray-400" />
-                                        <span className="text-gray-600">{data?.borrower.address}</span>
+                                        <span className="text-gray-600">{data?.borrower?.address}</span>
                                     </div>
 
                                 </div>
