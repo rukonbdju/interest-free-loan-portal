@@ -8,9 +8,11 @@ import { Button } from "../shared/button";
 import AlertBox from "../shared/alert";
 import { useFetchData } from "@/hooks/useFetchData";
 import { Borrower } from "@/types";
+import { useAuth } from "@/contexts/auth-context";
 
 export const CreateLoan: React.FC = () => {
-    const { data } = useFetchData<Borrower[]>('/borrowers')
+    const { user } = useAuth()
+    const { data } = useFetchData<Borrower[]>(`/borrowers/creator/${user?._id}`)
     console.log(data)
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)

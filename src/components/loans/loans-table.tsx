@@ -1,8 +1,10 @@
 'use client'
 import { useLoans } from "@/contexts/loan-context";
 import { formatDate } from "@/utils/date-format";
-import { Eye, Pencil, Trash } from "lucide-react";
+import { BanknoteArrowUp, Eye, MoreVertical, Pencil } from "lucide-react";
 import Link from "next/link";
+import DeleteLoan from "./delete-loan";
+import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const LoansTable = () => {
     const { loans } = useLoans()
@@ -57,7 +59,7 @@ const LoansTable = () => {
                         </th>
                         <th
                             scope="col"
-                            className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                            className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider"
                         >
                             Actions
                         </th>
@@ -71,19 +73,19 @@ const LoansTable = () => {
                                     {loan.loanId}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {loan?.borrower?.name} ({loan.borrower.borrowerId})
+                                    {loan?.borrower?.name} ({loan?.borrower?.borrowerId})
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                     {loan.amount} {loan.currency}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {loan.disbursementMethod}
+                                    {loan?.disbursementMethod}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {formatDate(loan.disbursementDate)}
+                                    {formatDate(loan?.disbursementDate)}
                                 </td>
                                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                    {formatDate(loan.dueDate)}
+                                    {formatDate(loan?.dueDate)}
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
@@ -93,25 +95,55 @@ const LoansTable = () => {
                                         {'Active'}
                                     </span>
                                 </td>
-                                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                                    <div className="flex gap-2">
-                                        <Link title='View' className="text-gray-500 hover:text-gray-900 transition-colors" href={"/loans/" + loan._id}>
-                                            <Eye size={18} />
-                                        </Link>
-                                        <Link
-                                            href={`/loans/${loan._id}/edit`}
-                                            title="Edit"
-                                            className="text-gray-500 hover:text-gray-900 transition-colors"
-                                        >
-                                            <Pencil size={18} />
-                                        </Link>
-                                        <button
-                                            title="Delete"
-                                            className="text-gray-500 hover:text-gray-900 transition-colors"
-                                        >
-                                            <Trash size={18} />
-                                        </button>
+                                <td className="px-6 py-4 text-sm font-medium">
+                                    <div className="">
+                                        <div className="flex items-center justify-end">
+                                            <Link title='View' className=" text-gray-500 hover:text-gray-900 transition-colors hover:bg-gray-100 p-1 rounded-full" href={"/loans/" + loan._id}>
+                                                <Eye size={18} />
+                                            </Link>
+                                            <Link
+                                                className="text-gray-500 hover:text-gray-900 transition-colors hover:bg-gray-100 p-1 rounded-full"
+                                                href={`/loans/${loan._id}/edit`}
+                                                title="Edit"
+                                            >
+                                                <Pencil size={18} />
+                                            </Link>
+                                            <DeleteLoan id={loan._id} />
+                                        </div>
+                                        {/* <Menu>
+                                            <MenuButton as="button" className={'outline-0 hover:bg-gray-100 p-1 rounded-full'}>
+                                                <MoreVertical size={18} />
+                                            </MenuButton>
+                                            <MenuItems anchor="bottom end" as="div" className={' outline-0 bg-white p-2 drop-shadow-2xl rounded'}>
+                                                <MenuItem as={'li'} className={'p-2 hover:bg-purple-100 rounded'}>
+                                                    <div className="flex items-center gap-2 text-purple-500">
+                                                        <BanknoteArrowUp size={18} />
+                                                        <span>Add Payment</span>
+                                                    </div>
+                                                </MenuItem>
+                                                <MenuItem as={'li'} className={'p-2 hover hover:bg-blue-100 rounded transition-colors'}>
+                                                    <Link
+                                                        href={`/loans/${loan._id}/edit`}
+                                                        title="Edit"
+                                                    >
+                                                        <div className="flex items-center gap-2 text-blue-500">
+
+                                                            <Pencil size={18} />
+                                                            <span>Edit</span>
+                                                        </div>
+                                                    </Link>
+                                                </MenuItem>
+                                                <MenuItem as={'li'} className={'p-2 hover:bg-red-100 rounded transition-colors'}>
+                                                    <div className="flex items-center gap-2 text-red-500">
+                                                        <DeleteLoan id={loan._id} />
+                                                        <span>Delete</span>
+                                                    </div>
+                                                </MenuItem>
+                                            </MenuItems>
+                                        </Menu> */}
+
                                     </div>
+
                                 </td>
                             </tr>
                         ))

@@ -83,7 +83,7 @@ export const EditLoanForm = ({ loan }: LoanPropsType) => {
                     icon={<User className="w-4 h-4" />}
                     label="Borrower"
                     name="borrower"
-                    value={`${loan.borrower.name} (${loan.borrower.borrowerId})`}
+                    value={`${loan?.borrower?.name} (${loan?.borrower?.borrowerId})`}
                     required={true}
                     disabled={true}
                 />
