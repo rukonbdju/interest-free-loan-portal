@@ -1,280 +1,255 @@
 'use client'
-import React, { useState } from 'react';
-import { Edit, Trash2, Plus, FileText } from 'lucide-react';
-
-// Assuming recharts is installed and available in the project
+import React from 'react';
+import type { FC } from 'react';
 import {
-    ResponsiveContainer,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    Tooltip,
-    CartesianGrid,
-} from 'recharts';
+    User,
+    Calendar,
+    Wallet,
+    Clock,
+    PlusCircle,
+    FilePenLine,
+    Mail,
+    Phone,
+    MapPin,
+    List,
+    HandCoins,
+} from 'lucide-react';
+import { useFetchData } from '@/hooks/useFetchData';
+import { useParams } from 'next/navigation';
+import { Loan } from '@/types';
+import Link from 'next/link';
 
-// Define the data structures using TypeScript interfaces
-interface Repayment {
-    id: number;
-    date: string;
-    amount: number;
-    status: 'Paid' | 'Pending';
-}
-
-interface Loan {
-    id: string;
-    borrowerName: string;
-    amount: number;
-    startDate: string;
-    dueDate: string;
-    status: 'Active' | 'Paid Off';
-    remainingBalance: number;
-    repayments: Repayment[];
-}
-
-// Mock data for a single loan
-const mockLoan: Loan = {
-    id: 'LN-001234',
-    borrowerName: 'Jane Doe',
-    amount: 5000,
-    startDate: '2023-10-26',
-    dueDate: '2024-10-26',
-    status: 'Active',
-    remainingBalance: 2000,
-    repayments: [
-        { id: 1, date: '2023-11-26', amount: 500, status: 'Paid' },
-        { id: 2, date: '2023-12-26', amount: 500, status: 'Paid' },
-        { id: 3, date: '2024-01-26', amount: 500, status: 'Paid' },
-        { id: 4, date: '2024-02-26', amount: 500, status: 'Paid' },
-        { id: 5, date: '2024-03-26', amount: 500, status: 'Paid' },
-        { id: 6, date: '2024-04-26', amount: 500, status: 'Pending' },
-        { id: 7, date: '2024-05-26', amount: 500, status: 'Pending' },
-        { id: 8, date: '2024-06-26', amount: 500, status: 'Pending' },
-        { id: 9, date: '2024-07-26', amount: 500, status: 'Pending' },
-        { id: 10, date: '2024-08-26', amount: 500, status: 'Pending' },
-    ],
+// Function to format date
+const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+    });
 };
 
-// Main page component
-export default function LoanDetailPage() {
-    const [loan, setLoan] = useState<Loan>(mockLoan);
+// Calculates days remaining until the end date
+const getDaysRemaining = (endDate: string) => {
+    const end = new Date(endDate);
+    const now = new Date(); // Use current date for countdown
+    const diffTime = end.getTime() - now.getTime();
+    if (diffTime < 0) return 0;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    return diffDays;
+};
 
-    const getRepaymentChartData = () => {
-        const paidAmount = loan.repayments
-            .filter((r) => r.status === 'Paid')
-            .reduce((sum, r) => sum + r.amount, 0);
-        const pendingAmount = loan.remainingBalance;
-
-        return [
-            { name: 'Paid', value: paidAmount, fill: '#3b82f6' },
-            { name: 'Remaining', value: pendingAmount, fill: '#9ca3af' },
-        ];
-    };
-
-    const handleEdit = () => {
-        // Logic for editing loan
-        console.log('Editing loan:', loan.id);
-    };
-
-    const handleDelete = () => {
-        // Logic for deleting loan
-        console.log('Deleting loan:', loan.id);
-    };
-
-    const handleRecordRepayment = () => {
-        // Logic for recording a new repayment
-        console.log('Recording repayment for loan:', loan.id);
-    };
-
-    const handleGenerateAgreement = () => {
-        // Logic for generating a loan agreement
-        console.log('Generating agreement for loan:', loan.id);
-    };
-
-    const formattedAmount = (amount: number) => {
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: 'USD',
-        }).format(amount);
-    };
+// --- MAIN COMPONENT ---
+const LoanDetailsPage: FC = () => {
+    const params = useParams();
+    const { data } = useFetchData<Loan>(`/loans/${params.id}`)
+    const paidAmount = 500;
+    const totalAmount = data?.amount;
+    const progressPercentage = totalAmount ? (paidAmount / totalAmount) * 100 : 0;
+    const daysRemaining = getDaysRemaining(data?.dueDate || '');
 
     return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="w-full mx-auto space-y-6">
-                {/* Loan Info Card */}
-                <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                    <div className="flex flex-col md:flex-row md:items-center justify-between">
-                        <div>
-                            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 leading-tight">
-                                Loan Details
-                            </h1>
-                            <p className="text-gray-500 mt-1">ID: {loan.id}</p>
-                        </div>
-                        <div className="flex gap-2 mt-4 md:mt-0">
-                            <button
-                                onClick={handleEdit}
-                                className="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-blue-600 hover:bg-blue-50 transition-colors duration-200"
-                            >
-                                <Edit className="w-4 h-4 mr-2" />
-                                Edit
-                            </button>
-                            <button
-                                onClick={handleDelete}
-                                className="inline-flex items-center rounded-lg px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 transition-colors duration-200"
-                            >
-                                <Trash2 className="w-4 h-4 mr-2" />
-                                Delete
-                            </button>
-                        </div>
-                    </div>
+        <div className="bg-gray-50  min-h-screen">
+            <div className="w-full">
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <div className="text-sm font-medium text-gray-500">Borrower</div>
-                            <div className="mt-1 text-gray-900 font-semibold">{loan.borrowerName}</div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <div className="text-sm font-medium text-gray-500">Amount</div>
-                            <div className="mt-1 text-gray-900 font-semibold">{formattedAmount(loan.amount)}</div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <div className="text-sm font-medium text-gray-500">Start Date</div>
-                            <div className="mt-1 text-gray-900 font-semibold">{loan.startDate}</div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg">
-                            <div className="text-sm font-medium text-gray-500">Due Date</div>
-                            <div className="mt-1 text-gray-900 font-semibold">{loan.dueDate}</div>
-                        </div>
-                        <div className="p-4 bg-gray-50 rounded-lg col-span-1 sm:col-span-2 lg:col-span-1">
-                            <div className="text-sm font-medium text-gray-500">Status</div>
-                            <div className="mt-1 font-semibold">
-                                <span
-                                    className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${loan.status === 'Active'
-                                        ? 'bg-blue-100 text-blue-800'
-                                        : 'bg-green-100 text-green-800'
-                                        }`}
-                                >
-                                    {loan.status}
-                                </span>
+                {/* Header */}
+                <header className="flex flex-col sm:flex-row justify-between sm:items-center gap-4 mb-6">
+                    <div>
+                        <h1 className="text-2xl font-bold text-gray-800 ">Loan Details</h1>
+                        <p className="text-sm text-gray-500 ">ID: {data?.loanId} | Created at {formatDate(data?.createdAt || "")} </p>
+                    </div>
+                    <div className="flex items-center gap-3">
+                        <Link href={`/loans/${data?._id}/edit`} className="p-2 rounded-lg text-gray-500 hover:bg-gray-200 ">
+                            <FilePenLine size={20} />
+                        </Link>
+                        <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <List size={18} />
+                            Loan List
+                        </button>
+                    </div>
+                </header>
+
+                {/* Main Content Grid */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+                    {/* Left Column */}
+                    <div className="lg:col-span-2 flex flex-col gap-6">
+
+                        {/* Loan Overview Card */}
+                        <div className="bg-white rounded-xl shadow-md p-6 border border-gray-200 ">
+                            <div className="flex justify-between items-start mb-4">
+                                <div>
+                                    <p className="text-sm text-gray-500 ">Remaining Balance</p>
+                                    <p className="text-4xl font-bold text-gray-800 ">{totalAmount ? totalAmount - paidAmount : 0} {data?.currency}</p>
+                                </div>
+                                <span className='bg-blue-100 text-blue-500 px-2 rounded-2xl'>Active</span>
+                            </div>
+
+                            {/* Progress Bar */}
+                            <div className="mb-6">
+                                <div className="w-full bg-gray-200 rounded-full h-3">
+                                    <div
+                                        className="bg-gradient-to-r from-blue-500 to-cyan-500 h-3 rounded-full transition-all duration-500 ease-out"
+                                        style={{ width: `${progressPercentage}%` }}
+                                    ></div>
+                                </div>
+                                <div className="flex justify-between text-xs text-gray-500  mt-1">
+                                    <span>0 {data?.currency}</span>
+                                    <span>{totalAmount} {data?.currency}</span>
+                                </div>
+                            </div>
+
+                            {/* Loan Stats */}
+                            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 text-center sm:text-left">
+                                <div className="flex items-center justify-center sm:justify-start gap-3">
+                                    <div className="bg-green-100 p-2 rounded-full"><Wallet size={20} className="text-green-600 " /></div>
+                                    <div>
+                                        <p className="text-sm text-gray-500 ">Total Paid</p>
+                                        <p className="font-semibold text-gray-700 ">{paidAmount} {data?.currency}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-center sm:justify-start gap-3">
+                                    <div className="bg-red-100  p-2 rounded-full"><Calendar size={20} className="text-red-600 " /></div>
+                                    <div>
+                                        <p className="text-sm text-gray-500 ">Final Due Date</p>
+                                        <p className="font-semibold text-gray-700 ">{formatDate(data?.dueDate || "")}</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-center justify-center sm:justify-start gap-3">
+                                    <div className="bg-yellow-100 p-2 rounded-full"><Clock size={20} className="text-yellow-600" /></div>
+                                    <div>
+                                        <p className="text-sm text-gray-500 ">Time Remaining</p>
+                                        <p className="font-semibold text-gray-700">{daysRemaining} Days</p>
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className="p-4 bg-gray-50 rounded-lg col-span-1 sm:col-span-2 lg:col-span-1">
-                            <div className="text-sm font-medium text-gray-500">Remaining Balance</div>
-                            <div className="mt-1 text-gray-900 font-semibold">
-                                {formattedAmount(loan.remainingBalance)}
+
+                        {/* Payment History */}
+                        <div className="bg-white  rounded-xl shadow-md border border-gray-200 ">
+                            <div className='flex gap-2 justify-between items-center p-6 border-b border-gray-200 '>
+                                <h2 className="text-lg font-semibold text-gray-800">
+                                    Payment History
+                                </h2>
+                                <button className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                                    <PlusCircle size={18} />
+                                    Add Payment
+                                </button>
+                            </div>
+
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-sm text-left text-gray-500 ">
+                                    <thead className="text-xs text-gray-700 uppercase bg-gray-50 ">
+                                        <tr>
+                                            <th scope="col" className="px-6 py-3">Date</th>
+                                            <th scope="col" className="px-6 py-3">Amount</th>
+                                            <th scope="col" className="px-6 py-3">Method</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {data?.payments?.map((payment) => (
+                                            <tr key={payment._id} className="bg-white  border-b  hover:bg-gray-50 ">
+                                                <td className="px-6 py-4 font-medium text-gray-900  whitespace-nowrap">{formatDate(payment.paymentDate)}</td>
+                                                <td className="px-6 py-4 font-semibold text-green-600 ">{totalAmount} {data?.currency}</td>
+                                                <td className="px-6 py-4">
+                                                    <div className="flex items-center gap-2">
+
+                                                        <span>{payment.paymentMethod}</span>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                        {data?.payments?.length === 0 && (
+                                            <tr>
+                                                <td colSpan={3} className="text-center py-10 text-gray-500">No payments have been made yet.</td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
-                </div>
 
-                {/* Repayment Schedule Table */}
-                <div className="bg-white rounded-xl shadow-lg p-6 md:p-8 overflow-x-auto">
-                    <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
-                        Repayment Schedule
-                    </h2>
-                    <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tl-lg"
-                                >
-                                    Installment
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Amount
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
-                                >
-                                    Status
-                                </th>
-                                <th
-                                    scope="col"
-                                    className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider rounded-tr-lg"
-                                >
-                                    Due Date
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                            {loan.repayments.map((repayment, index) => (
-                                <tr key={repayment.id} className="hover:bg-gray-50">
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                                        {index + 1}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {formattedAmount(repayment.amount)}
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap">
-                                        <span
-                                            className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${repayment.status === 'Paid'
-                                                ? 'bg-green-100 text-green-800'
-                                                : 'bg-red-100 text-red-800'
-                                                }`}
-                                        >
-                                            {repayment.status}
-                                        </span>
-                                    </td>
-                                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {repayment.date}
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                    {/* Right Column */}
+                    <div className="flex flex-col gap-6">
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Quick Actions Card */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
-                            Quick Actions
-                        </h2>
-                        <div className="flex flex-col sm:flex-row gap-4">
-                            <button
-                                onClick={handleRecordRepayment}
-                                className="flex-1 w-full sm:w-auto inline-flex items-center justify-center rounded-lg border border-transparent bg-blue-600 px-6 py-3 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                            >
-                                <Plus className="w-5 h-5 mr-2" />
-                                Record Repayment
-                            </button>
-                            <button
-                                onClick={handleGenerateAgreement}
-                                className="flex-1 w-full sm:w-auto inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-6 py-3 text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                            >
-                                <FileText className="w-5 h-5 mr-2" />
-                                Generate Agreement
-                            </button>
+                        {/* Borrower Information */}
+                        <div className="bg-white  rounded-xl shadow-md p-6 border border-gray-200 ">
+                            <div className="flex items-start gap-4">
+                                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center">
+                                    <User size={24} className="text-gray-500 " />
+                                </div>
+                                <div className='space-y-1.5'>
+                                    <div>
+                                        <p className="font-semibold text-gray-800 ">{data?.borrower?.name}</p>
+                                        <p className="text-sm text-gray-500 ">
+                                            ID: {data?.borrower.borrowerId} | Created on {formatDate(data?.borrower?.createdAt || '')}
+                                        </p>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Mail size={16} className="text-gray-400" />
+                                        <span className="text-gray-600">{data?.borrower.email}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <Phone size={16} className="text-gray-400" />
+                                        <span className="text-gray-600">{data?.borrower.phone}</span>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <MapPin size={16} className="text-gray-400" />
+                                        <span className="text-gray-600">{data?.borrower.address}</span>
+                                    </div>
+
+                                </div>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* Repayment Summary Chart Card */}
-                    <div className="bg-white rounded-xl shadow-lg p-6 md:p-8">
-                        <h2 className="text-xl sm:text-2xl font-semibold text-gray-900 mb-4">
-                            Repayment Summary
-                        </h2>
-                        <div className="h-48 w-full">
-                            <ResponsiveContainer width="100%" height="100%">
-                                <BarChart data={getRepaymentChartData()} margin={{ top: 20 }}>
-                                    <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                                    <XAxis dataKey="name" axisLine={false} tickLine={false} />
-                                    <YAxis axisLine={false} tickLine={false} />
-                                    <Tooltip
-                                        cursor={{ fill: 'rgba(0,0,0,0.1)' }}
-                                        formatter={(value) => formattedAmount(value as number)}
-                                    />
-                                    <Bar dataKey="value" barSize={40} radius={[10, 10, 0, 0]} />
-                                </BarChart>
-                            </ResponsiveContainer>
+                        {/* Loan Timeline */}
+                        <div className="bg-white  rounded-xl shadow-md p-6 border border-gray-200 ">
+
+                            <ul className="space-y-4">
+                                <li className="flex items-center gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0 bg-green-100  rounded-full flex items-center justify-center">
+                                        <Wallet size={16} className="text-green-600 " />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-700 ">Total Amount</p>
+                                        <p className="text-sm text-gray-500 ">{data?.amount} {data?.currency}</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-center gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0 bg-violet-100  rounded-full flex items-center justify-center">
+                                        <HandCoins size={16} className="text-violet-600 " />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-700 ">Disbursement Method</p>
+                                        <p className="text-sm text-gray-500 ">{data?.disbursementMethod}</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-center gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0 bg-blue-100  rounded-full flex items-center justify-center">
+                                        <Calendar size={16} className="text-blue-600 " />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-700 ">Disbursement Date</p>
+                                        <p className="text-sm text-gray-500 ">{formatDate(data?.disbursementDate || "")}</p>
+                                    </div>
+                                </li>
+                                <li className="flex items-center gap-4">
+                                    <div className="w-8 h-8 flex-shrink-0 bg-red-100  rounded-full flex items-center justify-center">
+                                        <Calendar size={16} className="text-red-600 " />
+                                    </div>
+                                    <div>
+                                        <p className="font-medium text-gray-700 ">Final Payment Due</p>
+                                        <p className="text-sm text-gray-500 ">{formatDate(data?.dueDate || "")}</p>
+                                    </div>
+                                </li>
+                            </ul>
                         </div>
+
                     </div>
                 </div>
             </div>
         </div>
     );
-}
+};
+
+export default LoanDetailsPage;
