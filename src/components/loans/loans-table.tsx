@@ -1,10 +1,9 @@
 'use client'
 import { useLoans } from "@/contexts/loan-context";
 import { formatDate } from "@/utils/date-format";
-import { BanknoteArrowUp, Eye, MoreVertical, Pencil } from "lucide-react";
+import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import DeleteLoan from "./delete-loan";
-import { Menu, MenuButton, MenuItem, MenuItems } from "@headlessui/react";
 
 const LoansTable = () => {
     const { loans } = useLoans()
@@ -110,38 +109,6 @@ const LoansTable = () => {
                                             </Link>
                                             <DeleteLoan id={loan._id} />
                                         </div>
-                                        {/* <Menu>
-                                            <MenuButton as="button" className={'outline-0 hover:bg-gray-100 p-1 rounded-full'}>
-                                                <MoreVertical size={18} />
-                                            </MenuButton>
-                                            <MenuItems anchor="bottom end" as="div" className={' outline-0 bg-white p-2 drop-shadow-2xl rounded'}>
-                                                <MenuItem as={'li'} className={'p-2 hover:bg-purple-100 rounded'}>
-                                                    <div className="flex items-center gap-2 text-purple-500">
-                                                        <BanknoteArrowUp size={18} />
-                                                        <span>Add Payment</span>
-                                                    </div>
-                                                </MenuItem>
-                                                <MenuItem as={'li'} className={'p-2 hover hover:bg-blue-100 rounded transition-colors'}>
-                                                    <Link
-                                                        href={`/loans/${loan._id}/edit`}
-                                                        title="Edit"
-                                                    >
-                                                        <div className="flex items-center gap-2 text-blue-500">
-
-                                                            <Pencil size={18} />
-                                                            <span>Edit</span>
-                                                        </div>
-                                                    </Link>
-                                                </MenuItem>
-                                                <MenuItem as={'li'} className={'p-2 hover:bg-red-100 rounded transition-colors'}>
-                                                    <div className="flex items-center gap-2 text-red-500">
-                                                        <DeleteLoan id={loan._id} />
-                                                        <span>Delete</span>
-                                                    </div>
-                                                </MenuItem>
-                                            </MenuItems>
-                                        </Menu> */}
-
                                     </div>
 
                                 </td>
