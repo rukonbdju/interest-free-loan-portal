@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import Modal from "../shared/modal";
-import { Calendar, DollarSign, Plus, PlusCircle, Wallet } from "lucide-react";
+import { Calendar, DollarSign, Edit, Plus, Wallet } from "lucide-react";
 import { InputField, SelectField } from "../shared/input-field";
 import { Button } from "../shared/button";
 import { formatDate } from "@/utils/date-format";
@@ -9,31 +9,27 @@ import AlertBox from "../shared/alert";
 import { baseUrl } from "@/utils/api-url";
 import { useLoanPayment } from "@/contexts/loan-payment-context";
 
-const AddPayment = () => {
+const EditPayment = ({ id }: { id: string }) => {
     const { user } = useAuth()
-    const { loan, addNewPayment } = useLoanPayment()
+    const { loan, updatePayment } = useLoanPayment()
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-
-    const remainingBalance = useMemo(() => {
+    const payment = useMemo(() => {
         const totalPaid = loan?.payments.reduce((total, payment) => total + payment.paymentAmount, 0) || 0
-        return loan?.amount ? loan.amount - totalPaid : 0;
-    }, [loan,])
+        const remainingBalance = loan?.amount ? loan.amount - totalPaid : 0;
+        const paymentData = loan?.payments.find(item => item._id === id)
+        return { ...paymentData, remainingBalance }
+    }, [loan, id])
 
     const [formData, setFormData] = useState({
-        paymentDate: formatDate(Date().toString(), 'YYYY-MM-DD'),
-        paymentMethod: '',
-        paymentAmount: remainingBalance
+        paymentDate: formatDate(payment.paymentDate || ''),
+        paymentMethod: payment?.paymentMethod,
+        paymentAmount: payment.remainingBalance
     })
 
     const handleClose = () => {
         setIsOpen(false)
-        setFormData({
-            paymentDate: formatDate(Date().toString(), 'YYYY-MM-DD'),
-            paymentMethod: '',
-            paymentAmount: remainingBalance
-        })
         setAlert({ type: '', message: '' })
     }
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -56,7 +52,7 @@ const AddPayment = () => {
             const result = await res.json()
             if (result.success) {
                 setAlert({ type: '', message: '' })
-                addNewPayment(result.data)
+                updatePayment(result.data)
                 setIsOpen(false)
             }
             if (!result?.success) {
@@ -72,10 +68,9 @@ const AddPayment = () => {
     }
     return (
         <>
-            <Button disabled={remainingBalance === 0} onClick={() => setIsOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
-                <PlusCircle size={18} />
-                Add Payment
-            </Button>
+            <button onClick={() => setIsOpen(true)} className="cursor-pointer hover:text-blue-500">
+                <Edit size={18} />
+            </button>
             <Modal isOpen={isOpen} onClose={handleClose}>
                 <h1 className="text-2xl font-semibold mb-3">Payment</h1>
                 {(alert.message && alert.type) && <AlertBox type={alert.type as 'info' | 'error' | 'warning' | 'success'} message={alert.message} />}
@@ -97,7 +92,7 @@ const AddPayment = () => {
                         name="paymentAmount"
                         type="number"
                         value={formData.paymentAmount}
-                        max={remainingBalance}
+                        max={payment.remainingBalance}
                     />
                     <SelectField
                         required={true}
@@ -111,7 +106,7 @@ const AddPayment = () => {
                         <option value="Online">Online</option>
                     </SelectField>
                     <div className="flex justify-end">
-                        <Button disabled={loading} icon={<Plus size={18} />} type="submit">Add</Button>
+                        <Button disabled={loading} icon={<Plus size={18} />} type="submit">Edit</Button>
                     </div>
                 </form>
             </Modal>
@@ -119,4 +114,4 @@ const AddPayment = () => {
     )
 }
 
-export default AddPayment;
+export default EditPayment;
