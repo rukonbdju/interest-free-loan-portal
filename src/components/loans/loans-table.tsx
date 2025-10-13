@@ -4,6 +4,7 @@ import { formatDate } from "@/utils/date-format";
 import { Eye, Pencil } from "lucide-react";
 import Link from "next/link";
 import DeleteLoan from "./delete-loan";
+import LoanStatus from "../shared/loan-status-calculation";
 
 const LoansTable = () => {
     const { loans } = useLoans()
@@ -88,10 +89,8 @@ const LoansTable = () => {
                                 </td>
 
                                 <td className="px-6 py-4 whitespace-nowrap">
-                                    <span
-                                        className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800 `}
-                                    >
-                                        {'Active'}
+                                    <span>
+                                        <LoanStatus loan={loan} />
                                     </span>
                                 </td>
                                 <td className="px-6 py-4 text-sm font-medium">

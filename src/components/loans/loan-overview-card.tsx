@@ -1,17 +1,8 @@
 import { useLoanPayment } from "@/contexts/loan-payment-context";
 import { formatDate } from "@/utils/date-format";
-import { Calendar, CheckCircle, Clock, TrendingUp, TriangleAlert, Wallet } from "lucide-react";
+import { Calendar, Clock, Wallet } from "lucide-react";
 import { useMemo } from "react";
-
-// Calculates days remaining until the end date
-const getDaysRemaining = (endDate: string) => {
-    const end = new Date(endDate);
-    const now = new Date(); // Use current date for countdown
-    const diffTime = end.getTime() - now.getTime();
-    if (diffTime < 0) return -1;
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    return diffDays;
-};
+import LoanStatus, { getDaysRemaining } from "../shared/loan-status-calculation";
 
 const LoanOverviewCard = () => {
     const { loan } = useLoanPayment()
@@ -29,21 +20,7 @@ const LoanOverviewCard = () => {
                     <p className="text-sm text-gray-500 ">Remaining Balance</p>
                     <p className="text-4xl font-bold text-gray-800 ">{balance.remainingBalance}</p>
                 </div>
-                {
-                    balance.remainingBalance === 0 && <span className='flex gap-2 items-center font-bold bg-blue-100 text-green-500 px-2 rounded-2xl'>
-                        <CheckCircle size={16} /> Paid
-                    </span>
-                }
-                {
-                    (balance.remainingBalance > 0 && balance.remainingDays >= 0) && <span className='flex gap-2 items-center font-bold bg-blue-100 text-blue-500 px-2 rounded-2xl'>
-                        <TrendingUp size={16} /> Active
-                    </span>
-                }
-                {
-                    (balance.remainingBalance > 0 && balance.remainingDays === -1) && <span className='flex gap-2 items-center font-bold bg-red-100 text-red-500 px-2 rounded-2xl'>
-                        <TriangleAlert size={16} /> Overdue
-                    </span>
-                }
+                {loan && <LoanStatus loan={loan} />}
 
             </div>
 
