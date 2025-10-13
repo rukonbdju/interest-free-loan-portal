@@ -12,7 +12,7 @@ const Sidebar = () => {
         { name: "Dashboard", href: "/", emoji: "🏠" },
         { name: "Borrowers", href: "/borrowers", emoji: "👤" },
         { name: "Loans", href: "/loans", emoji: "💸" },
-        { name: "Repayments", href: "/repayments", emoji: "💰" },
+        { name: "Payments", href: "/payments", emoji: "💰" },
         { name: "Agreements", href: "/agreements", emoji: "📑", },
         { name: "Reports", href: "/reports", emoji: "📊", separator: true },
         { name: "Notifications", href: "/notifications", emoji: "🔔" },

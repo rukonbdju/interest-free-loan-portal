@@ -1,6 +1,5 @@
 
 import LoansTable from '@/components/loans/loans-table';
-import Pagination from '@/components/shared/pagination';
 import { LoanProvider } from '@/contexts/loan-context';
 import {
     Plus,
@@ -58,15 +57,9 @@ const LoansPage = () => {
                                 >
                                     Overdue
                                 </button>
-                                <button
-                                    className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors bg-gray-200 text-gray-700 hover:bg-gray-300 `}
-                                >
-                                    Forgiven
-                                </button>
                             </div>
                         </div>
                         <LoansTable />
-                        <Pagination />
                     </div>
                 </div>
             </div>
