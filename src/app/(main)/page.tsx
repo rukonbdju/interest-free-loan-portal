@@ -2,12 +2,8 @@ import React from 'react';
 import {
   Plus,
   UserPlus,
-  FileText,
-  MessageSquareText,
-  FolderPlus,
 } from 'lucide-react';
 
-import ActivityItem, { Activity } from '@/components/dashboard/activity-item';
 import QuickActionButton from '@/components/dashboard/quick-action-button';
 import Link from 'next/link';
 import LoanSummary from '@/components/dashboard/loan-summary';
@@ -16,11 +12,6 @@ import RecentPaymentTable from '@/components/dashboard/recent-payment-table';
 
 
 export default function DashboardPage() {
-  const activities: Activity[] = [
-    { icon: <MessageSquareText className="h-5 w-5 text-slate-500" />, text: "Repayment of $1,200 from Jane Cooper was recorded.", time: "25m ago" },
-    { icon: <FolderPlus className="h-5 w-5 text-slate-500" />, text: "New loan created for Michael Scott for $5,000.", time: "1h ago" },
-    { icon: <FileText className="h-5 w-5 text-slate-500" />, text: "Agreement generated for the loan to Dwight Schrute.", time: "3h ago" },
-  ];
 
   return (
     <main className="bg-slate-50 min-h-screen font-sans">

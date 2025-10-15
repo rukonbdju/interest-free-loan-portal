@@ -3,7 +3,6 @@ import { Button } from '@/components/shared/button';
 import { BorrowerProvider } from '@/contexts/borrower-context';
 import {
     Plus,
-    Search,
 } from 'lucide-react';
 import Link from 'next/link';
 
