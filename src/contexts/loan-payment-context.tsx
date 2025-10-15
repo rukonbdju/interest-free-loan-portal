@@ -49,21 +49,33 @@ export const LoanPaymentProvider = ({ children, id }: { children: ReactNode, id:
     }, [user?._id, id]);
 
     const addNewPayment = (payment: Payment) => {
-        setLoan((prev) => ({ ...prev, payments: [...prev?.payments, payment] }))
+        setLoan((prev) => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                payments: [...(prev.payments ?? []), payment]
+            };
+        });
     }
 
     const deletePayment = (id: string) => {
-        setLoan(prev => ({
-            ...prev,
-            payments: prev?.payments.filter(item => item._id !== id)
-        }))
+        setLoan(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                payments: prev.payments.filter(item => item._id !== id)
+            };
+        });
     }
 
     const updatePayment = (payment: Payment) => {
-        setLoan(prev => ({
-            ...prev,
-            payments: prev?.payments.map(item => item._id === payment._id ? payment : item)
-        }))
+        setLoan(prev => {
+            if (!prev) return null;
+            return {
+                ...prev,
+                payments: prev.payments.map(item => item._id === payment._id ? payment : item)
+            };
+        })
     }
 
     return (
