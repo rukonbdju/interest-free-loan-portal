@@ -81,7 +81,7 @@ const LoansTable = () => {
                                         {loan.amount} {loan.currency}
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                                        {loan?.disbursementMethod}
+                                        <span className="px-2 bg-violet-200 text-violet-500 rounded">{loan?.disbursementMethod}</span>
                                     </td>
                                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                                         {formatDate(loan?.disbursementDate)}
@@ -125,7 +125,7 @@ const LoansTable = () => {
                     </tbody>
                 </table>
             </div>
-            <Pagination page={3} totalPages={4} onPageChange={v => console.log(v)} />
+            <Pagination page={1} totalPages={1} onPageChange={v => console.log(v)} />
         </div>
     )
 }

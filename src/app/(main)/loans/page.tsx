@@ -1,5 +1,6 @@
 
 import LoansTable from '@/components/loans/loans-table';
+import { Button } from '@/components/shared/button';
 import { LoanProvider } from '@/contexts/loan-context';
 import {
     Plus,
@@ -16,10 +17,9 @@ const LoansPage = () => {
                     {/* Page Title & Actions */}
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
                         <h1 className="text-3xl sm:text-4xl font-bold text-gray-800">Loans</h1>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
-                            <Plus size={20} />
-                            <Link href={'/loans/new'} className="font-medium">Add New Loan</Link>
-                        </button>
+                        <Link href={'/loans/new'}>
+                            <Button icon={<Plus size={20} />}>Add New Loan</Button>
+                        </Link>
                     </div>
 
                     {/* Card Container */}

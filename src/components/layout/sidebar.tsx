@@ -13,7 +13,7 @@ const Sidebar = () => {
         { name: "Borrowers", href: "/borrowers", emoji: "👤" },
         { name: "Loans", href: "/loans", emoji: "💸" },
         { name: "Payments", href: "/payments", emoji: "💰" },
-        { name: "Agreements", href: "/agreements", emoji: "📑", },
+        //{ name: "Agreements", href: "/agreements", emoji: "📑", },
         { name: "Reports", href: "/reports", emoji: "📊", separator: true },
         { name: "Notifications", href: "/notifications", emoji: "🔔" },
         { name: "Settings", href: "/settings", emoji: "⚙️" },

@@ -1,9 +1,8 @@
 'use client'
 import { useFetchData } from "@/hooks/useFetchData"
 import { formatDate } from "@/utils/date-format";
-import Link from "next/link";
-import { Button } from "../shared/button";
 import Pagination from "../shared/pagination";
+import { Search } from "lucide-react";
 type PaginationDTO = {
     total: number;
     page: number;
@@ -25,6 +24,19 @@ const PaymentTable = () => {
     console.log(data)
     return (
         <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
+            {/* Search & Filter Bar */}
+            <div className="flex flex-col md:flex-row items-center justify-between gap-4 mb-6">
+                <div className="relative w-full md:w-80">
+                    <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                        <Search size={20} className="text-gray-400" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="Search by name, phone, or ID..."
+                        className="w-full pl-10 pr-4 py-2 text-gray-700 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    />
+                </div>
+            </div>
             <div className="overflow-x-auto">
                 <table className="w-full text-left">
                     <thead>
@@ -40,7 +52,10 @@ const PaymentTable = () => {
                         {data?.payments && data.payments.map((payment, index) => (
                             <tr className="py-4 px-6 text-sm font-medium text-slate-900 border-b border-b-gray-200" key={index}>
                                 <td className="py-4 px-6 text-sm font-medium text-slate-900">
-                                    {payment.borrower}
+                                    <div>{payment.borrower}</div>
+                                    <div className="text-xs text-slate-500">
+                                        {payment.borrowerId}
+                                    </div>
                                 </td>
                                 <td className="py-4 px-6 text-sm font-medium text-slate-900">
                                     <div>{payment.loanId}</div>

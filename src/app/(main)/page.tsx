@@ -30,15 +30,6 @@ export default function DashboardPage() {
           {/* Main content column for tables and lists */}
           <div className="lg:col-span-2 space-y-8">
             <UpcomingPaymentTable />
-
-            {/* <div className="bg-white p-6 rounded-2xl shadow-sm">
-              <h2 className="text-xl font-semibold text-slate-800 mb-6">Recent Activity</h2>
-              <ul className="divide-y divide-slate-200/70">
-                {activities.map((activity, index) => (
-                  <ActivityItem key={index} {...activity} />
-                ))}
-              </ul>
-            </div> */}
           </div>
 
           {/* Sidebar column for actions */}
@@ -54,7 +45,7 @@ export default function DashboardPage() {
                   <QuickActionButton icon={<UserPlus className="h-5 w-5" />} label="Add Borrower" />
                 </Link>
 
-                <QuickActionButton icon={<FileText className="h-5 w-5" />} label="Generate Agreement" />
+                {/* <QuickActionButton icon={<FileText className="h-5 w-5" />} label="Generate Agreement" /> */}
               </div>
             </div>
           </div>
