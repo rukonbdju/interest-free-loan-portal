@@ -1,5 +1,9 @@
 import PaymentTable from "@/components/payment/payment-table";
+import { Metadata } from "next";
 
+export const metadata: Metadata = {
+    title: "Loan Management | Payments",
+};
 const PaymentHistoryPage = () => {
     return (
         <div>

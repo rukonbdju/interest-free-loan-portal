@@ -6,8 +6,11 @@ import {
     Plus,
     Search,
 } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
-
+export const metadata: Metadata = {
+    title: "Loan Management | Loans",
+};
 const LoansPage = () => {
 
     return (

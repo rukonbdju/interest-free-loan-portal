@@ -4,7 +4,12 @@ import { BorrowerProvider } from '@/contexts/borrower-context';
 import {
     Plus,
 } from 'lucide-react';
+import { Metadata } from 'next';
 import Link from 'next/link';
+
+export const metadata: Metadata = {
+    title: "Loan Management | Borrowers",
+};
 
 const BorrowersPage = () => {
 

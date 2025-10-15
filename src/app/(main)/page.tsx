@@ -9,8 +9,11 @@ import Link from 'next/link';
 import LoanSummary from '@/components/dashboard/loan-summary';
 import UpcomingPaymentTable from '@/components/dashboard/upcoming-payment-table';
 import RecentPaymentTable from '@/components/dashboard/recent-payment-table';
+import { Metadata } from 'next';
 
-
+export const metadata: Metadata = {
+  title: "Loan Management | Dashboard",
+};
 export default function DashboardPage() {
 
   return (
