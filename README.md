@@ -1,122 +1,51 @@
-# Interest-Free Loan App (Qard Hasan)
+# InterestFree — Interest-Free Loan Management SaaS
 
-This is a community-driven platform that connects Muslims for **interest-free loans (Qard Hasan)**. The app allows multiple lenders to fund a single borrower’s request while ensuring transparency, trust, and Shariah compliance.  
-
----
-
-## 🌙 Table of Contents
-1. [Project Overview](#project-overview)  
-2. [Features](#features)  
-3. [User Roles](#user-roles)  
-4. [Functional Requirements](#functional-requirements)  
-5. [Money Transfer Workflow](#money-transfer-workflow)  
-6. [Tech Stack](#tech-stack)  
+**Live Demo:** https://interest-free-loan-portal.vercel.app  
 
 ---
 
-## Project Overview
-This app connects borrowers and lenders within the Muslim community to facilitate **interest-free lending**. The platform builds trust using **verification, guarantors, and reputation scoring**.  
+## 🧾 Overview
 
-The app is designed for transparency, fairness, and scalability, allowing **multi-lender funding** without central funds.
-
----
-
-## Features
-- Borrowers can request loans with purpose, amount, and repayment schedule.  
-- Lenders can fund requests partially or fully.  
-- Auto-generated **Qard Hasan contracts** for each loan.  
-- Repayment tracking and notifications.  
-- Trust and verification system (KYC, guarantors, mosque endorsements).  
-- Dashboard for borrowers and lenders.  
-- Dispute resolution system.  
-- Islamic guidance and motivational reminders.  
+**InterestFree** is a SaaS platform built to simplify the management of **interest-free loans**, allowing organizations, communities, or small lenders to manage borrowers, create loans, and track repayments with full transparency and zero interest.  
+It is designed to be clean, fast, and user-friendly — built entirely with modern web technologies.
 
 ---
 
-## User Roles
+## ✨ Key Features
 
-### Borrower
-- Submit loan requests  
-- Track repayment schedule  
-- Receive reminders and notifications  
-- Request rescheduling (with lender approval)  
-- Option to mark part of the loan as forgiven (sadaqah)  
-
-### Lender
-- Browse loan requests  
-- Fund loan partially or fully  
-- Sign digital contracts  
-- Track repayments and rate borrowers  
-
-### Admin
-- Verify users and approve requests  
-- Manage disputes  
-- Monitor system metrics and generate reports  
+- 📁 Borrower Management  
+- 💸 Create & Track Interest-Free Loans  
+- 🧾 Record Ad-hoc Payments Anytime (no fixed EMI)  
+- 📊 Dashboard with Loan Status & Due Dates  
+- 🔐 Authentication & Secure Access  
+- 🌐 Multi-tenant Ready (SaaS Model)  
+- ⚡ Deployed & Optimized for Vercel
 
 ---
 
-## Functional Requirements
+## 🛠 Tech Stack
 
-### User Management
-- Registration with name, email, phone, password  
-- KYC verification (ID upload, phone OTP)  
-- Borrower/Lender/Both role selection  
-
-### Loan Management
-- Multiple lenders can fund a single request  
-- 100% funding required before loan activation  
-- Auto-generate Shariah-compliant contract  
-- Track repayment installments  
-- Partial repayment distribution among lenders  
-
-### Trust & Verification
-- Borrower verification badges: ✅ID verified, 🕌 Community endorsed, ⭐ Good borrower  
-- Reputation system based on repayment history  
-- Optional guarantor for large loans  
-
-### Notifications
-- Loan submitted, funded, contract ready  
-- Payment due & missed notifications  
-- Motivational Islamic reminders  
-
-### Dashboard & Reporting
-- Borrower: active loans, repayment progress  
-- Lender: total funded, repayments, outstanding  
-- Admin: user and loan management, dispute resolution  
-
-### Dispute Handling
-- Borrower can request rescheduling  
-- Lender can flag non-repayment  
-- Admin can intervene for resolution  
-
-### Islamic Compliance
-- No interest  
-- Repayment = principal only  
-- Mercy options: loan forgiveness / reschedule  
-- Integration with zakat/sadaqah optional  
+| Technology | Purpose |
+|------------|---------|
+| **Next.js (TypeScript)** | Frontend & App Routing |
+| **Tailwind CSS** | UI Styling |
+| **REST API Integration** | Loan & Payment Data |
+| **Vercel** | Deployment & Hosting |
 
 ---
 
-## Money Transfer Workflow
+## 🚀 Getting Started (Local Setup)
 
-1. Borrower submits loan request  
-2. Community lenders pledge amounts (multi-lender)  
-3. Loan request reaches **100% funding**  
-4. Digital contract generated & signed by borrower + lenders  
-5. Lenders transfer money **directly to borrower** (bank/mobile wallet)  
-6. Repayment tracked & reminders sent  
-7. Repayments proportionally split to each lender  
-8. Optional forgiveness/rescheduling if borrower struggles  
+```bash
+# Clone the repo
+git clone https://github.com/rukonbdju/interest-free-loan-portal.git
+cd interest-free-loan-portal
 
----
+# Create .env file add the line
+NEXT_PUBLIC_BASE_API_URL=api-url
 
-## Tech Stack
-- **Frontend:** Next.js+TailwindCSS  
-- **Backend:** Express (API)  
-- **Database:** MongoDB  
-- **Authentication:** JWT   
-- **Notifications:** Push / Email / SMS  
+# Install dependencies
+npm install
 
----
-
-Building a trusted community for **interest-free loans**, guided by Islamic principles and the spirit of Qard Hasan.  
+# Run development server
+npm run dev
