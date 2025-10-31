@@ -11,7 +11,6 @@ import ChangePassword from '@/components/auth/change-password';
 const ProfilePage: React.FC = () => {
     const { user } = useAuth()
     const [isEditing, setIsEditing] = useState(false);
-    console.log(isEditing)
     const [profile, setProfile] = useState({});
 
 
@@ -22,7 +21,6 @@ const ProfilePage: React.FC = () => {
     };
 
     const handleUpdateProfile = () => {
-        console.log(profile)
         setIsEditing(false)
     }
 

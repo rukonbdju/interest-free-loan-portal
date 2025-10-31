@@ -9,7 +9,6 @@ import Pagination from "../shared/pagination";
 
 const LoansTable = () => {
     const { loans } = useLoans()
-    console.log(loans)
     return (
         <div>
             <div className="overflow-x-auto rounded-lg border border-gray-200">

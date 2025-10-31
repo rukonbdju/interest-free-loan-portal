@@ -36,7 +36,6 @@ export const CreateBorrowerForm: React.FC = () => {
             });
 
             const result = await res.json();
-            console.log(result)
             if (result.success) {
                 setAlert({ type: 'success', message: 'Borrower successfully created!' })
                 setFormData({
@@ -47,7 +46,6 @@ export const CreateBorrowerForm: React.FC = () => {
                     address: "",
                 });
             } else {
-                console.log(result)
                 if (res?.status && res.status < 500) {
                     setAlert({ type: 'error', message: result?.message || 'Something went wrong, try again!' })
                 }

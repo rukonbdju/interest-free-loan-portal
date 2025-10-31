@@ -44,7 +44,6 @@ export default function RegistrationPage() {
     const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         setPasswordError('');
-        console.log(formData)
         if (formData.password !== formData.confirmPassword) {
             setPasswordError("Passwords do not match. Please try again.");
         }
@@ -62,7 +61,6 @@ export default function RegistrationPage() {
             if (!result.success) {
                 setError(result.message)
             }
-            console.log(result)
             if (result.success) {
                 setUser(result.data)
             }

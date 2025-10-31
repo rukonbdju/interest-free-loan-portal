@@ -62,7 +62,7 @@ const BorrowerPage = () => {
                         </div>
                     </div>
                 </div>
-                <LoanSummary />
+                {/* <LoanSummary /> */}
                 {params.id && <LoanHistory id={params.id?.toString()} />}
                 {params.id && <PaymentHistory id={params.id?.toString()} />}
             </div>

@@ -15,7 +15,6 @@ const DeletePayment = ({ id }: { id: string }) => {
                 credentials: 'include'
             })
             const result = await res.json()
-            console.log(result)
             if (result?.success) {
                 deletePayment(id)
             }

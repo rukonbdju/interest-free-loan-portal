@@ -3,6 +3,7 @@ import { Loan } from "@/types";
 import { formatDate } from "@/utils/date-format";
 import Link from "next/link";
 import LoanStatus from "../shared/loan-status-calculation";
+import { Button } from "../shared/button";
 
 const LoanHistory = ({ id }: { id: string }) => {
     const { data: loanHistory } = useFetchData<Loan[]>(`/loans/borrower/${id}`)
@@ -32,9 +33,11 @@ const LoanHistory = ({ id }: { id: string }) => {
                                     <LoanStatus loan={loan} />
                                 </td>
                                 <td className="px-6 py-4 text-right text-sm font-medium">
-                                    <Link href={`/loans/${loan._id}`} className="text-indigo-600 hover:text-indigo-900">
-                                        Details
-                                    </Link>
+                                    <div className="flex justify-end">
+                                        <Link href={`/loans/${loan._id}`} >
+                                            <Button>Details</Button>
+                                        </Link>
+                                    </div>
                                 </td>
                             </tr>
                         ))}

@@ -13,7 +13,6 @@ type LoanSummaryType = {
 
 const LoanSummary = () => {
     const { data } = useFetchData<LoanSummaryType>('/loans/summary')
-    console.log(data)
     const stats: StatCardProps[] = [
         { title: "Total Loans", value: data?.totalLoanAmount ? String(data.totalLoanAmount) : "0", icon: <DollarSign className="h-6 w-6" />, color: { bg: 'bg-blue-100', text: 'text-blue-600' } },
         { title: "Active Loans", value: data?.activeLoans ? String(data.activeLoans) : "0", icon: <Clock className="h-6 w-6" />, color: { bg: 'bg-yellow-100', text: 'text-yellow-600' } },

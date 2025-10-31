@@ -1,37 +1,31 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, IdCard, SendHorizonal, DollarSign, ReceiptText, Receipt, Calendar, } from "lucide-react";
+import { User, IdCard, SendHorizontal, DollarSign, ReceiptText, Receipt, Calendar, } from "lucide-react";
 import { InputField, SelectField } from "../shared/input-field";
 import { baseUrl } from "@/utils/api-url";
 import { Button } from "../shared/button";
 import AlertBox from "../shared/alert";
-import { useFetchData } from "@/hooks/useFetchData";
-import { Borrower, Loan } from "@/types";
 import { formatDate } from "@/utils/date-format";
+import { Loan } from "@/types";
 type LoanPropsType = {
     loan: Loan
 }
 
 export const EditLoanForm = ({ loan }: LoanPropsType) => {
-    const { data } = useFetchData<Borrower[]>('/borrowers')
-    console.log(data)
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({});
     const disbursementDate = formatDate(loan.disbursementDate, 'YYYY-MM-DD');
     const dueDate = formatDate(loan.dueDate, 'YYYY-MM-DD');
-    console.log({ disbursementDate, dueDate })
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        console.log({ name, value })
         setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData)
         setLoading(true)
         try {
             const res = await fetch(baseUrl + `/loans/${loan._id}`, {
@@ -42,12 +36,10 @@ export const EditLoanForm = ({ loan }: LoanPropsType) => {
             });
 
             const result = await res.json();
-            console.log(result)
             if (result.success) {
                 setAlert({ type: 'success', message: 'Loan successfully updated!' })
 
             } else {
-                console.log(result)
                 if (res?.status && res.status < 500) {
                     setAlert({ type: 'error', message: result?.message || 'Something went wrong, try again!' })
                 }
@@ -143,7 +135,7 @@ export const EditLoanForm = ({ loan }: LoanPropsType) => {
 
 
             <div className="flex justify-end">
-                <Button disabled={loading} icon={<SendHorizonal className="w-4 h-4" />} >Submit</Button>
+                <Button disabled={loading} icon={<SendHorizontal className="w-4 h-4" />} >Submit</Button>
             </div>
         </form>
     );

@@ -21,7 +21,6 @@ type PaymentDTO = {
 
 const RecentPaymentTable = () => {
     const { data } = useFetchData<{ pagination: PaginationDTO, payments: PaymentDTO[] }>('/payments')
-    console.log(data)
     return (
         <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
             <div className="mb-6 flex items-center justify-between">

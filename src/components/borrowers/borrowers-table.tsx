@@ -7,7 +7,6 @@ import Pagination from "../shared/pagination";
 
 const BorrowersTable = () => {
     const { borrowers } = useBorrowers()
-    console.log(borrowers)
     return (
         <div>
             {/* Search & Filter Bar */}

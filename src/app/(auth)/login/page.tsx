@@ -38,7 +38,6 @@ export default function LoginPage() {
         e.preventDefault();
         setLoginError('');
         try {
-            console.log(formData)
             const res = await fetch(baseUrl + "/auth/login", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -46,7 +45,6 @@ export default function LoginPage() {
                 body: JSON.stringify({ email: formData.email, password: formData.password }),
             });
             const result = await res.json()
-            console.log(result)
             if (result.success) {
                 setUser(result.data)
             } else {

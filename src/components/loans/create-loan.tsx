@@ -13,7 +13,6 @@ import { useAuth } from "@/contexts/auth-context";
 export const CreateLoan: React.FC = () => {
     const { user } = useAuth()
     const { data } = useFetchData<Borrower[]>(`/borrowers/creator/${user?._id}`)
-    console.log(data)
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
     const [formData, setFormData] = useState({
@@ -28,13 +27,11 @@ export const CreateLoan: React.FC = () => {
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
-        console.log({ name, value })
         setFormData({ ...formData, [name]: value });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        console.log(formData)
         setLoading(true)
         try {
             const res = await fetch(baseUrl + '/loans', {
@@ -45,7 +42,6 @@ export const CreateLoan: React.FC = () => {
             });
 
             const result = await res.json();
-            console.log(result)
             if (result.success) {
                 setAlert({ type: 'success', message: 'Loan successfully created!' })
                 setFormData({
@@ -58,7 +54,6 @@ export const CreateLoan: React.FC = () => {
                     dueDate: "",
                 });
             } else {
-                console.log(result)
                 if (res?.status && res.status < 500) {
                     setAlert({ type: 'error', message: result?.message || 'Something went wrong, try again!' })
                 }

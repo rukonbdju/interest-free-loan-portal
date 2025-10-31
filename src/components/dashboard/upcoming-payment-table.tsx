@@ -34,7 +34,6 @@ const Status = ({ status }: { status: string; }) => {
 
 const UpcomingPaymentTable = () => {
     const { data } = useFetchData<UpcomingPaymentType[]>('/loans/upcoming-payments')
-    console.log(data)
     return (
         <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
             <h2 className="text-xl font-semibold text-slate-800 mb-6">Upcoming Payments</h2>

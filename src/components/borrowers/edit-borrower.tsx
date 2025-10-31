@@ -26,7 +26,6 @@ export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setLoading(true)
-        console.log(formData)
         try {
             const res = await fetch(baseUrl + `/borrowers/${borrower.id}`, {
                 credentials: 'include',
@@ -36,12 +35,10 @@ export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
             });
 
             const result = await res.json();
-            console.log(result)
             if (result.success) {
                 setAlert({ type: 'success', message: 'Borrower successfully updated!' })
                 setFormData({});
             } else {
-                console.log(result)
                 if (res?.status && res.status < 500) {
                     setAlert({ type: 'error', message: result?.message || 'Something went wrong, try again!' })
                 }

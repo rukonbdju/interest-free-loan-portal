@@ -22,7 +22,6 @@ const AddPayment = () => {
         paymentAmount: remainingBalance
     })
 
-    console.log(formData.paymentAmount)
     useEffect(() => {
         setFormData(prev => ({ ...prev, paymentAmount: remainingBalance }))
     }, [remainingBalance])
@@ -44,7 +43,6 @@ const AddPayment = () => {
         e.preventDefault()
         setLoading(true)
         try {
-            console.log(formData)
             const res = await fetch(baseUrl + '/payments', {
                 method: 'POST',
                 credentials: 'include',
@@ -62,7 +60,6 @@ const AddPayment = () => {
             if (!result?.success) {
                 setAlert({ type: 'error', message: result?.message || "Something went wrong, try again." })
             }
-            console.log(result);
         } catch (err) {
             console.log(err)
         } finally {

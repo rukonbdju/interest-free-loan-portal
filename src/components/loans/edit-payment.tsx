@@ -34,7 +34,6 @@ const EditPayment = ({ payment }: { payment: Payment }) => {
         e.preventDefault()
         setLoading(true)
         try {
-            console.log(formData)
             const res = await fetch(baseUrl + '/payments/' + payment._id, {
                 method: 'PUT',
                 credentials: 'include',
@@ -52,7 +51,6 @@ const EditPayment = ({ payment }: { payment: Payment }) => {
             if (!result?.success) {
                 setAlert({ type: 'error', message: result?.message || "Something went wrong, try again." })
             }
-            console.log(result);
         } catch (err) {
             console.log(err)
         } finally {
