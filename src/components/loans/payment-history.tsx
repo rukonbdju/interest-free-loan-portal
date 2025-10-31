@@ -5,7 +5,8 @@ import DeletePayment from "./delete-payment";
 import EditPayment from "./edit-payment";
 
 const PaymentHistory = () => {
-    const { loan } = useLoanPayment()
+    const { loan, remainingBalance } = useLoanPayment()
+    console.log("P", remainingBalance)
     return (
         <div className="bg-white  rounded-xl shadow-md border border-gray-200 pb-6">
             <div className='flex gap-2 justify-between items-center p-6 border-b border-gray-200 '>
@@ -37,7 +38,7 @@ const PaymentHistory = () => {
                                 </td>
                                 <td className="px-6 py-4">
                                     <div className="flex items-center justify-end gap-2">
-                                        <EditPayment id={payment._id} />
+                                        <EditPayment payment={payment} />
                                         <DeletePayment id={payment._id} />
                                     </div>
                                 </td>

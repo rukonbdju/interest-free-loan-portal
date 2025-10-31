@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import Modal from "../shared/modal";
 import { Calendar, DollarSign, Plus, PlusCircle, Wallet } from "lucide-react";
 import { InputField, SelectField } from "../shared/input-field";
@@ -11,21 +11,21 @@ import { useLoanPayment } from "@/contexts/loan-payment-context";
 
 const AddPayment = () => {
     const { user } = useAuth()
-    const { loan, addNewPayment } = useLoanPayment()
+    const { loan, addNewPayment, remainingBalance } = useLoanPayment()
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-
-    const remainingBalance = useMemo(() => {
-        const totalPaid = loan?.payments.reduce((total, payment) => total + payment.paymentAmount, 0) || 0
-        return loan?.amount ? loan.amount - totalPaid : 0;
-    }, [loan,])
 
     const [formData, setFormData] = useState({
         paymentDate: formatDate(Date().toString(), 'YYYY-MM-DD'),
         paymentMethod: '',
         paymentAmount: remainingBalance
     })
+
+    console.log(formData.paymentAmount)
+    useEffect(() => {
+        setFormData(prev => ({ ...prev, paymentAmount: remainingBalance }))
+    }, [remainingBalance])
 
     const handleClose = () => {
         setIsOpen(false)
@@ -97,6 +97,7 @@ const AddPayment = () => {
                         name="paymentAmount"
                         type="number"
                         value={formData.paymentAmount}
+                        min={0}
                         max={remainingBalance}
                     />
                     <SelectField
@@ -111,7 +112,7 @@ const AddPayment = () => {
                         <option value="Online">Online</option>
                     </SelectField>
                     <div className="flex justify-end">
-                        <Button disabled={loading} icon={<Plus size={18} />} type="submit">Add</Button>
+                        <Button disabled={loading || Number(formData.paymentAmount) === 0} icon={<Plus size={18} />} type="submit">Add</Button>
                     </div>
                 </form>
             </Modal>

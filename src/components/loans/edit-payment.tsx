@@ -1,31 +1,25 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import Modal from "../shared/modal";
-import { Calendar, DollarSign, Edit, Plus, Wallet } from "lucide-react";
+import { Calendar, DollarSign, Edit, SendHorizontal, Wallet } from "lucide-react";
 import { InputField, SelectField } from "../shared/input-field";
 import { Button } from "../shared/button";
 import { formatDate } from "@/utils/date-format";
-import { useAuth } from "@/contexts/auth-context";
 import AlertBox from "../shared/alert";
 import { baseUrl } from "@/utils/api-url";
 import { useLoanPayment } from "@/contexts/loan-payment-context";
+import { Payment } from "@/types";
 
-const EditPayment = ({ id }: { id: string }) => {
-    const { user } = useAuth()
-    const { loan, updatePayment } = useLoanPayment()
+const EditPayment = ({ payment }: { payment: Payment }) => {
+    const { updatePayment, remainingBalance } = useLoanPayment()
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
-    const payment = useMemo(() => {
-        const totalPaid = loan?.payments.reduce((total, payment) => total + payment.paymentAmount, 0) || 0
-        const remainingBalance = loan?.amount ? loan.amount - totalPaid : 0;
-        const paymentData = loan?.payments.find(item => item._id === id)
-        return { ...paymentData, remainingBalance }
-    }, [loan, id])
+
 
     const [formData, setFormData] = useState({
         paymentDate: formatDate(payment.paymentDate || ''),
         paymentMethod: payment?.paymentMethod,
-        paymentAmount: payment.remainingBalance
+        paymentAmount: payment.paymentAmount
     })
 
     const handleClose = () => {
@@ -41,13 +35,13 @@ const EditPayment = ({ id }: { id: string }) => {
         setLoading(true)
         try {
             console.log(formData)
-            const res = await fetch(baseUrl + '/payments', {
-                method: 'POST',
+            const res = await fetch(baseUrl + '/payments/' + payment._id, {
+                method: 'PUT',
                 credentials: 'include',
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify({ ...formData, borrower: loan?.borrower._id, loan: loan?._id, createdBy: user?._id })
+                body: JSON.stringify({ ...formData })
             })
             const result = await res.json()
             if (result.success) {
@@ -78,7 +72,7 @@ const EditPayment = ({ id }: { id: string }) => {
                     <InputField
                         required={true}
                         onChange={handleChange}
-                        value={formData.paymentDate}
+                        value={formatDate(formData.paymentDate, 'YYYY-MM-DD')}
                         max={formatDate(Date().toString(), 'YYYY-MM-DD')}
                         icon={<Calendar size={16} />}
                         label="Date"
@@ -92,9 +86,12 @@ const EditPayment = ({ id }: { id: string }) => {
                         name="paymentAmount"
                         type="number"
                         value={formData.paymentAmount}
-                        max={payment.remainingBalance}
+                        min={0}
+                        max={remainingBalance + payment.paymentAmount}
+
                     />
                     <SelectField
+                        defaultValue={payment.paymentMethod}
                         required={true}
                         onChange={handleChange}
                         icon={<Wallet size={16} />}
@@ -106,7 +103,7 @@ const EditPayment = ({ id }: { id: string }) => {
                         <option value="Online">Online</option>
                     </SelectField>
                     <div className="flex justify-end">
-                        <Button disabled={loading} icon={<Plus size={18} />} type="submit">Edit</Button>
+                        <Button disabled={loading} icon={<SendHorizontal size={18} />} type="submit">Submit</Button>
                     </div>
                 </form>
             </Modal>

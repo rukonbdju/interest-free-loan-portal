@@ -1,6 +1,6 @@
 'use client';
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode, useMemo } from "react";
 import { useAuth } from "@/contexts/auth-context";
 import { Loan, Payment } from "@/types";
 import { baseUrl } from "@/utils/api-url";
@@ -9,6 +9,7 @@ interface LoanPaymentContextType {
     loan: Loan | null;
     loading: boolean;
     error: string | null;
+    remainingBalance: number;
     setLoan: React.Dispatch<React.SetStateAction<Loan | null>>;
     addNewPayment: (payment: Payment) => void;
     updatePayment: (payment: Payment) => void;
@@ -22,6 +23,11 @@ export const LoanPaymentProvider = ({ children, id }: { children: ReactNode, id:
     const [loan, setLoan] = useState<Loan | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
+
+    const remainingBalance = useMemo(() => {
+        const totalPaid = loan?.payments.reduce((total, payment) => total + payment.paymentAmount, 0) || 0
+        return loan?.amount ? loan.amount - totalPaid : 0;
+    }, [loan,])
 
     useEffect(() => {
         const loadLoans = async () => {
@@ -79,7 +85,7 @@ export const LoanPaymentProvider = ({ children, id }: { children: ReactNode, id:
     }
 
     return (
-        <LoanContext.Provider value={{ loan, loading, error, setLoan, addNewPayment, deletePayment, updatePayment }}>
+        <LoanContext.Provider value={{ loan, remainingBalance, loading, error, setLoan, addNewPayment, deletePayment, updatePayment }}>
             {children}
         </LoanContext.Provider>
     );

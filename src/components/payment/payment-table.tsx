@@ -3,6 +3,7 @@ import { useFetchData } from "@/hooks/useFetchData"
 import { formatDate } from "@/utils/date-format";
 import Pagination from "../shared/pagination";
 import { Search } from "lucide-react";
+import { useState } from "react";
 type PaginationDTO = {
     total: number;
     page: number;
@@ -20,8 +21,9 @@ type PaymentDTO = {
 }
 
 const PaymentTable = () => {
-    const { data } = useFetchData<{ pagination: PaginationDTO, payments: PaymentDTO[] }>('/payments')
-    console.log(data)
+    const limit = 10;
+    const [page, setPage] = useState(1)
+    const { data } = useFetchData<{ pagination: PaginationDTO, payments: PaymentDTO[] }>(`/payments?limit=${limit}&page=${page}`)
     return (
         <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
             {/* Search & Filter Bar */}
@@ -77,7 +79,7 @@ const PaymentTable = () => {
                     </tbody>
                 </table>
                 <div>
-                    {data?.pagination && <Pagination totalPages={data.pagination.totalPages} page={data.pagination.page} onPageChange={(v) => console.log(v)} />}
+                    {data?.pagination && <Pagination totalPages={data.pagination.totalPages} page={data.pagination.page} onPageChange={(v) => setPage(v)} />}
                 </div>
             </div>
         </div>
