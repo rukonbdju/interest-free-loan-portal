@@ -10,6 +10,7 @@ const Sidebar = () => {
 
     const menuItems = [
         { name: "Dashboard", href: "/", emoji: "🏠" },
+        { name: "Finance", href: "/finance", emoji: "💰" },
         { name: "Borrowers", href: "/borrowers", emoji: "👤" },
         { name: "Loans", href: "/loans", emoji: "💸" },
         { name: "Payments", href: "/payments", emoji: "💰" },
