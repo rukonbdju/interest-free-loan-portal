@@ -10,6 +10,10 @@ import LoanSummary from '@/components/dashboard/loan-summary';
 import UpcomingPaymentTable from '@/components/dashboard/upcoming-payment-table';
 import RecentPaymentTable from '@/components/dashboard/recent-payment-table';
 import { Metadata } from 'next';
+import FinancialStat from '@/components/dashboard/financial-stat';
+import QuickTransactionAdd from '@/components/dashboard/quick-transaction-add';
+import RecentTransactions from '@/components/dashboard/recent-transactions';
+import BudgetProgress from '@/components/dashboard/monthly-budget-flow';
 
 export const metadata: Metadata = {
   title: "Loan Management | Dashboard",
@@ -17,18 +21,21 @@ export const metadata: Metadata = {
 export default function DashboardPage() {
 
   return (
-    <main className="bg-slate-50 min-h-screen font-sans">
+    <main className="bg-slate-50 min-h-screen">
       <div className="w-full mx-auto">
+        <FinancialStat />
         <LoanSummary />
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Main content column for tables and lists */}
           <div className="lg:col-span-2 space-y-8">
+            <RecentTransactions />
             <UpcomingPaymentTable />
           </div>
-
           {/* Sidebar column for actions */}
           <div>
-            <div className="bg-white p-6 rounded-2xl shadow-sm">
+            <QuickTransactionAdd />
+            <BudgetProgress income={15000} expense={6000} />
+            <div className="bg-white p-6 rounded-2xl shadow-sm mt-8">
               <h2 className="text-xl font-semibold text-slate-800 mb-6">Quick Actions</h2>
               <div className="flex flex-col gap-3">
                 <Link href={'/loans/new'}>
@@ -48,7 +55,7 @@ export default function DashboardPage() {
           <RecentPaymentTable />
         </div>
       </div>
-    </main>
+    </main >
   );
 }
 
