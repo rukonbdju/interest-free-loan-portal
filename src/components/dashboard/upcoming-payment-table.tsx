@@ -4,7 +4,7 @@ import { formatDate } from "@/utils/date-format";
 import { CheckCircle, TrendingUp, TriangleAlert } from "lucide-react";
 type UpcomingPaymentType = {
     id: null;
-    borrower: string;
+    contact: string;
     dueDate: string;
     amount: number;
     status: string;
@@ -41,7 +41,7 @@ const UpcomingPaymentTable = () => {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/80">
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Borrower</th>
+                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Contact</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Due Date</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Amount</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Status</th>
@@ -50,7 +50,7 @@ const UpcomingPaymentTable = () => {
                     <tbody>
                         {data && data.map((payment, index) => (
                             <tr key={index} className="border-b border-slate-200/70 last:border-b-0 hover:bg-slate-50/50">
-                                <td className="py-4 px-6 text-sm font-medium text-slate-900">{payment.borrower}</td>
+                                <td className="py-4 px-6 text-sm font-medium text-slate-900">{payment.contact}</td>
                                 <td className="py-4 px-6 text-sm text-slate-600">{formatDate(payment.dueDate)}</td>
                                 <td className="py-4 px-6 text-sm font-semibold text-slate-800">{payment.amount}</td>
                                 <td className="py-4 px-6 text-sm">

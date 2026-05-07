@@ -1,135 +1,89 @@
 'use client'
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useMemo, useEffect, useCallback } from 'react';
 import {
-    Plus, X, DollarSign, ArrowUpRight, ArrowDownLeft, Filter, SortAsc, Edit, Trash2, Calendar,
-    ChevronRight,
-    ChevronLeft,
+    Plus, X, Calendar,
+    ChevronRight, ChevronLeft, TrendingUp, TrendingDown, Wallet,
+    Clock, Edit2, Trash2, Loader2
 } from 'lucide-react';
 import { formatCurrency } from '@/utils/formatCurrency';
+import { baseUrl } from '@/utils/api-url';
 
-
-// --- 1. TYPESCRIPT INTERFACES ---
-
-/**
- * Note: These interfaces are kept in the JSX file for structural consistency with the provided code.
- * In a pure TSX environment, they would be external.
- */
+// --- TYPES ---
 type TransactionType = 'income' | 'expense';
 
 interface Transaction {
-    id: string;
+    _id: string; // MongoDB uses _id
     description: string;
     amount: number;
     type: TransactionType;
-    date: string; // YYYY-MM-DD
+    date: string;
 }
 
-interface FilterSortState {
-    typeFilter: TransactionType | 'all';
-    sortBy: 'date' | 'amount';
-    sortDirection: 'asc' | 'desc';
-}
+// --- HELPERS ---
+const getTodayDate = () => new Date().toISOString().split('T')[0];
 
-// --- 2. MOCK DATA ---
+const formatDateDisplay = (dateString: string) => {
+    if (!dateString) return '';
+    const today = getTodayDate();
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = yesterday.toISOString().split('T')[0];
 
-const initialTransactions: Transaction[] = [
-    { id: '1', description: 'Monthly Salary', amount: 5000, type: 'income', date: '2025-07-25' },
-    { id: '2', description: 'Grocery Shopping', amount: 150.5, type: 'expense', date: '2025-07-26' },
-    { id: '3', description: 'Freelance Project', amount: 800, type: 'income', date: '2025-07-25' },
-    { id: '4', description: 'Rent Payment', amount: 1200, type: 'expense', date: '2025-07-28' },
-    { id: '5', description: 'Dinner Out', amount: 75.0, type: 'expense', date: '2025-07-26' },
-    { id: '6', description: 'Coffee', amount: 5.5, type: 'expense', date: '2025-07-28' },
-    { id: '7', description: 'Previous Month Salary', amount: 5000, type: 'income', date: '2025-06-25' },
-    { id: '8', description: 'Utilities', amount: 200, type: 'expense', date: '2025-06-28' },
-    { id: '9', description: 'Yearly Bonus', amount: 2000, type: 'income', date: '2025-01-15' },
-    { id: '10', description: 'Gym Membership', amount: 50, type: 'expense', date: '2025-07-24' },
-    { id: '11', description: 'Software Subscription', amount: 19.99, type: 'expense', date: '2025-07-01' },
-    { id: '12', description: 'Book Purchase', amount: 35.0, type: 'expense', date: '2025-07-10' },
-    { id: '13', description: 'Consulting Fee', amount: 1500, type: 'income', date: '2025-06-05' },
-    { id: '14', description: 'Travel Expenses', amount: 450.75, type: 'expense', date: '2025-05-15' },
-    { id: '15', description: 'Investment Dividend', amount: 250, type: 'income', date: '2025-05-01' },
-    { id: '16', description: 'New Laptop Purchase', amount: 1800, type: 'expense', date: '2025-04-10' },
-    { id: '17', description: 'Freelance Q4 2024', amount: 3500, type: 'income', date: '2024-12-01' },
-    { id: '18', description: 'Holiday Shopping', amount: 600, type: 'expense', date: '2024-12-15' },
-    { id: '19', description: 'Small Repair', amount: 45.0, type: 'expense', date: '2025-07-27' },
-    { id: '20', description: 'Passive Income Stream', amount: 120, type: 'income', date: '2025-07-27' },
-    { id: '21', description: 'Q1 2024 Salary', amount: 4500, type: 'income', date: '2024-03-25' },
-    { id: '22', description: 'Q4 2024 Rent', amount: 1200, type: 'expense', date: '2024-10-01' },
-];
+    if (dateString === today) return 'Today';
+    if (dateString === yesterdayStr) return 'Yesterday';
 
-
-const formatDate = (dateString: string) => {
-    if (!dateString) return 'Unknown Date';
-    try {
-        const date = new Date(dateString + 'T00:00:00'); // Ensure date is parsed correctly (local time issue)
-        const today = new Date();
-        const yesterday = new Date(today);
-        yesterday.setDate(today.getDate() - 1);
-
-        const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const todayOnly = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const yesterdayOnly = new Date(yesterday.getFullYear(), yesterday.getMonth(), yesterday.getDate());
-
-        if (dateOnly.getTime() === todayOnly.getTime()) return 'Today';
-        if (dateOnly.getTime() === yesterdayOnly.getTime()) return 'Yesterday';
-
-        return date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
-    } catch (e) {
-        console.error("Error formatting date:", e);
-        return dateString;
-    }
+    return new Date(dateString).toLocaleDateString('en-US', {
+        weekday: 'short',
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+    });
 };
 
-// --- 4. TRANSACTION LIST ITEM COMPONENT (Updated Style) ---
+// --- COMPONENTS ---
 
-interface TransactionItemProps {
+const TransactionItem: React.FC<{
     transaction: Transaction;
     onEdit: (tx: Transaction) => void;
     onDelete: (id: string) => void;
-}
-
-const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onEdit, onDelete }) => {
+}> = ({ transaction, onEdit, onDelete }) => {
     const isIncome = transaction.type === 'income';
-    const amountColor = isIncome ? 'text-green-600' : 'text-red-600 ';
-    const icon = isIncome ? <ArrowUpRight className="w-5 h-5" /> : <ArrowDownLeft className="w-5 h-5" />;
-    const iconBg = isIncome ? 'bg-green-100 text-green-600  ' : 'bg-red-100 text-red-600  ';
 
     return (
-        <div className="flex items-center justify-between p-4 sm:p-5 hover:bg-gray-50  transition duration-150 ease-in-out group border-b border-gray-100  last:border-b-0">
-            {/* Icon & Description */}
-            <div className="flex items-center space-x-4 flex-1 min-w-0">
-                <div className={`p-3 rounded-xl flex-shrink-0 ${iconBg}`}>
-                    {icon}
+        <div className="group relative bg-white border border-gray-100 rounded-2xl p-4 flex items-center justify-between hover:shadow-md transition-all duration-300 font-sans">
+            <div className="flex items-center gap-4">
+                <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${
+                    isIncome ? 'bg-emerald-50 text-emerald-600' : 'bg-rose-50 text-rose-600'
+                }`}>
+                    {isIncome ? <TrendingUp size={24} /> : <TrendingDown size={24} />}
                 </div>
-                <div className="flex flex-col truncate">
-                    <span className="font-semibold text-gray-800  truncate">{transaction.description}</span>
-                    <span className="text-sm text-gray-500  mt-0.5 capitalize">
-                        {transaction.type}
-                    </span>
+                <div>
+                    <h3 className="font-semibold text-gray-900">{transaction.description}</h3>
+                    <p className="text-xs text-gray-500 flex items-center gap-1">
+                        <Clock size={12} /> {isIncome ? 'Income Source' : 'Expense Category'}
+                    </p>
                 </div>
             </div>
 
-            {/* Amount & Actions */}
-            <div className="flex items-center space-x-4 ml-4 flex-shrink-0">
-                <span className={`font-bold text-lg whitespace-nowrap ${amountColor}`}>
-                    {isIncome ? '+' : '-'} {formatCurrency(transaction.amount)}
-                </span>
-
-                {/* Actions (Hidden on mobile by default, shown on hover/focus) */}
-                <div className="flex space-x-1 opacity-0 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity duration-200">
-                    <button
+            <div className="flex items-center gap-4">
+                <div className="text-right">
+                    <p className={`font-bold text-lg ${isIncome ? 'text-emerald-600' : 'text-rose-600'}`}>
+                        {isIncome ? '+' : '-'} {formatCurrency(transaction.amount)}
+                    </p>
+                </div>
+                
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <button 
                         onClick={() => onEdit(transaction)}
-                        className="p-2 text-blue-500 hover:text-blue-700 bg-blue-50 hover:bg-blue-100  rounded-lg transition"
-                        title="Edit Transaction"
+                        className="p-2 hover:bg-blue-50 text-blue-600 rounded-lg transition-colors"
                     >
-                        <Edit className="w-4 h-4" />
+                        <Edit2 size={18} />
                     </button>
-                    <button
-                        onClick={() => onDelete(transaction.id)}
-                        className="p-2 text-red-500 hover:text-red-700 bg-red-50 hover:bg-red-100  rounded-lg transition"
-                        title="Delete Transaction"
+                    <button 
+                        onClick={() => onDelete(transaction._id)}
+                        className="p-2 hover:bg-rose-50 text-rose-600 rounded-lg transition-colors"
                     >
-                        <Trash2 className="w-4 h-4" />
+                        <Trash2 size={18} />
                     </button>
                 </div>
             </div>
@@ -137,369 +91,368 @@ const TransactionItem: React.FC<TransactionItemProps> = ({ transaction, onEdit, 
     );
 };
 
-
-// --- 5. ADD/EDIT TRANSACTION MODAL ---
-
-interface TransactionModalProps {
+const TransactionModal: React.FC<{
     isOpen: boolean;
     onClose: () => void;
-    onSave: (tx: Omit<Transaction, 'id'>, id?: string) => void;
+    onSave: (tx: Partial<Transaction>, id?: string) => Promise<void>;
     editingTx: Transaction | null;
-}
-
-const TransactionModal: React.FC<TransactionModalProps> = ({ isOpen, onClose, onSave, editingTx }) => {
+    defaultType: TransactionType;
+    selectedDate: string;
+}> = ({ isOpen, onClose, onSave, editingTx, defaultType, selectedDate }) => {
     const [description, setDescription] = useState('');
-    const [amount, setAmount] = useState<number | ''>('');
-    const [type, setType] = useState<TransactionType>('expense');
-    const [date, setDate] = useState('');
+    const [amount, setAmount] = useState<string>('');
+    const [type, setType] = useState<TransactionType>(defaultType);
+    const [isSaving, setIsSaving] = useState(false);
 
     useEffect(() => {
         if (editingTx) {
             setDescription(editingTx.description);
-            setAmount(editingTx.amount);
+            setAmount(editingTx.amount.toString());
             setType(editingTx.type);
-            setDate(editingTx.date);
         } else {
             setDescription('');
             setAmount('');
-            setType('expense');
-            // Set default date to today's date in YYYY-MM-DD format
-            setDate(new Date().toISOString().split('T')[0]);
+            setType(defaultType);
         }
-    }, [editingTx, isOpen]);
-
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!description || !amount || Number(amount) <= 0) return;
-        onSave({ description, amount: Number(amount), type, date }, editingTx?.id);
-    };
+    }, [editingTx, defaultType, isOpen]);
 
     if (!isOpen) return null;
 
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!description || !amount) return;
+        setIsSaving(true);
+        try {
+            await onSave({ 
+                description, 
+                amount: parseFloat(amount), 
+                type, 
+                date: selectedDate 
+            }, editingTx?._id);
+            onClose();
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     return (
-        <div className="fixed inset-0 bg-gray-900 bg-opacity-75 flex items-center justify-center z-50 p-4 backdrop-blur-sm transition-opacity">
-            <div className="bg-white  rounded-xl shadow-2xl w-full max-w-lg transform scale-100 transition-all duration-300 border border-gray-100 ">
-                <div className="flex justify-between items-center p-5 border-b ">
-                    <h2 className="text-xl font-bold text-gray-800 ">
-                        {editingTx ? 'Edit Transaction' : 'Add New Transaction'}
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 font-sans">
+            <div className="absolute inset-0 bg-gray-900/40 backdrop-blur-sm" onClick={onClose} />
+            <div className="relative bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in duration-200">
+                <div className="px-6 py-4 border-b border-gray-100 flex justify-between items-center bg-gray-50/50">
+                    <h2 className="text-xl font-bold text-gray-900">
+                        {editingTx ? 'Edit' : 'Add'} {type.charAt(0).toUpperCase() + type.slice(1)}
                     </h2>
-                    <button onClick={onClose} className="text-gray-400 hover:text-gray-600  p-1 rounded-full hover:bg-gray-100  transition">
-                        <X className="w-5 h-5" />
+                    <button onClick={onClose} className="p-2 hover:bg-gray-200 rounded-full transition-colors text-gray-500">
+                        <X size={20} />
                     </button>
                 </div>
-                <form onSubmit={handleSubmit} className="p-6 space-y-5">
-                    {/* Type Toggle */}
-                    <div className="flex space-x-3 bg-gray-100 p-1 rounded-xl shadow-inner">
-                        {['income', 'expense'].map((t) => (
+                
+                <form onSubmit={handleSubmit} className="p-6 space-y-6">
+                    <div className="flex p-1 bg-gray-100 rounded-2xl">
+                        {(['income', 'expense'] as TransactionType[]).map((t) => (
                             <button
                                 key={t}
                                 type="button"
-                                onClick={() => setType(t as TransactionType)}
-                                className={`flex-1 py-2 text-sm font-medium rounded-lg transition-all duration-200 ${type === t
-                                    ? t === 'income' ? 'bg-green-500 text-white shadow-md' : 'bg-red-500 text-white shadow-md'
-                                    : 'text-gray-700  hover:bg-white'
-                                    }`}
+                                onClick={() => setType(t)}
+                                className={`flex-1 py-2.5 rounded-xl text-sm font-semibold transition-all duration-200 ${
+                                    type === t 
+                                    ? t === 'income' ? 'bg-emerald-500 text-white shadow-lg' : 'bg-rose-500 text-white shadow-lg'
+                                    : 'text-gray-500 hover:text-gray-700'
+                                }`}
                             >
-                                {t === 'income' ? 'Income' : 'Expense'}
+                                {t.charAt(0).toUpperCase() + t.slice(1)}
                             </button>
                         ))}
                     </div>
-                    {/* Description */}
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700  mb-1">Description</label>
-                        <input
-                            type="text"
-                            value={description}
-                            onChange={(e) => setDescription(e.target.value)}
-                            placeholder="e.g., Grocery Shopping"
-                            required
-                            className="w-full px-4 py-2 border border-gray-300  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition outline-none"
-                        />
-                    </div>
-                    {/* Amount & Date */}
-                    <div className="flex space-x-4">
-                        <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700  mb-1">Amount ($)</label>
+
+                    <div className="space-y-4">
+                        <div>
+                            <label className="text-sm font-semibold text-gray-700 ml-1">Description</label>
                             <input
-                                type="number"
-                                value={amount}
-                                onChange={(e) => setAmount(Number(e.target.value) || '')}
-                                min="0.01"
-                                step="0.01"
+                                type="text"
+                                value={description}
+                                onChange={(e) => setDescription(e.target.value)}
+                                placeholder="What's this for?"
+                                className="w-full mt-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none"
+                                autoFocus
                                 required
-                                className="w-full px-4 py-2 border border-gray-300   rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition outline-none"
                             />
                         </div>
-                        <div className="flex-1">
-                            <label className="block text-sm font-medium text-gray-700  mb-1">Date</label>
-                            <input
-                                type="date"
-                                value={date}
-                                onChange={(e) => setDate(e.target.value)}
-                                required
-                                className="w-full px-4 py-2 border border-gray-300  rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition outline-none"
-                            />
+                        <div>
+                            <label className="text-sm font-semibold text-gray-700 ml-1">Amount</label>
+                            <div className="relative">
+                                <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 font-bold">$</span>
+                                <input
+                                    type="number"
+                                    value={amount}
+                                    onChange={(e) => setAmount(e.target.value)}
+                                    placeholder="0.00"
+                                    step="0.01"
+                                    className="w-full pl-8 pr-4 py-3 bg-gray-50 border border-gray-200 rounded-2xl focus:ring-2 focus:ring-blue-500 focus:bg-white transition-all outline-none font-semibold text-lg"
+                                    required
+                                />
+                            </div>
+                        </div>
+                        <div className="bg-blue-50/50 p-4 rounded-2xl border border-blue-100 flex items-center gap-3">
+                            <Calendar size={20} className="text-blue-500" />
+                            <div className="text-sm">
+                                <p className="text-blue-600 font-semibold">Date</p>
+                                <p className="text-blue-800">{formatDateDisplay(selectedDate)}</p>
+                            </div>
                         </div>
                     </div>
-                    {/* Save Button */}
-                    <div className="pt-4">
-                        <button
-                            type="submit"
-                            className="w-full flex justify-center items-center py-3 px-4 border border-transparent rounded-lg shadow-md text-base font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 transform hover:scale-[1.01] active:scale-95"
-                        >
-                            <DollarSign className="w-5 h-5 mr-2" />
-                            {editingTx ? 'Save Changes' : 'Add Transaction'}
-                        </button>
-                    </div>
+
+                    <button
+                        type="submit"
+                        disabled={isSaving}
+                        className={`w-full py-4 rounded-2xl text-white font-bold text-lg shadow-lg hover:shadow-xl transition-all active:scale-[0.98] flex items-center justify-center gap-2 ${
+                            type === 'income' ? 'bg-emerald-600 hover:bg-emerald-700' : 'bg-rose-600 hover:bg-rose-700'
+                        } disabled:opacity-70`}
+                    >
+                        {isSaving && <Loader2 className="animate-spin" size={20} />}
+                        {editingTx ? 'Update' : 'Save'} Transaction
+                    </button>
                 </form>
             </div>
         </div>
     );
 };
 
-
-// --- 6. MAIN APP COMPONENT ---
-
-export default function App() {
-    const [transactions, setTransactions] = useState<Transaction[]>(initialTransactions);
+export default function TransactionsPage() {
+    const [transactions, setTransactions] = useState<Transaction[]>([]);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
+    const [selectedDate, setSelectedDate] = useState<string>(getTodayDate());
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalType, setModalType] = useState<TransactionType>('expense');
     const [editingTx, setEditingTx] = useState<Transaction | null>(null);
 
-    // State for List Filters
-    const [filterSort, setFilterSort] = useState<FilterSortState>({
-        typeFilter: 'all',
-        sortBy: 'date',
-        sortDirection: 'desc',
-    });
+    const fetchTransactions = useCallback(async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            const res = await fetch(`${baseUrl}/transactions?date=${selectedDate}`, {
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.success) {
+                setTransactions(result.data);
+            } else {
+                setError(result.message || 'Failed to fetch transactions');
+            }
+        } catch (err) {
+            setError('Failed to connect to the server');
+        } finally {
+            setLoading(false);
+        }
+    }, [selectedDate]);
 
+    useEffect(() => {
+        fetchTransactions();
+    }, [fetchTransactions]);
 
-    // --- Handlers ---
+    // Summary logic
+    const summary = useMemo(() => {
+        return transactions.reduce((acc, curr) => {
+            if (curr.type === 'income') acc.income += curr.amount;
+            else acc.expense += curr.amount;
+            return acc;
+        }, { income: 0, expense: 0 });
+    }, [transactions]);
 
-    const handleOpenModal = (tx: Transaction | null = null) => {
+    // Handlers
+    const changeDate = (offset: number) => {
+        const date = new Date(selectedDate);
+        date.setDate(date.getDate() + offset);
+        setSelectedDate(date.toISOString().split('T')[0]);
+    };
+
+    const handleOpenAdd = (type: TransactionType) => {
+        setModalType(type);
+        setEditingTx(null);
+        setIsModalOpen(true);
+    };
+
+    const handleEdit = (tx: Transaction) => {
+        setModalType(tx.type);
         setEditingTx(tx);
         setIsModalOpen(true);
     };
 
-    const handleCloseModal = () => {
-        setIsModalOpen(false);
-        setEditingTx(null);
-    };
-
-    const handleSaveTransaction = (newTxData: Omit<Transaction, 'id'>, id?: string) => {
-        if (id) {
-            setTransactions(transactions.map(tx => tx.id === id ? { ...tx, ...newTxData } : tx));
-        } else {
-            // Use date field in ID for better mock data identification, though UUID is better practice
-            const newId = crypto.randomUUID();
-            setTransactions([{ ...newTxData, id: newId }, ...transactions]);
-        }
-    };
-
-    const handleDeleteTransaction = (id: string) => {
-        // Simple confirmation using a state-based message box would be better than window.confirm
-        if (window.confirm('Are you sure you want to delete this transaction?')) {
-            setTransactions(transactions.filter(tx => tx.id !== id));
-        }
-    };
-
-    const handleFilterChange = (type: TransactionType | 'all') => {
-        setFilterSort(prev => ({ ...prev, typeFilter: type }));
-    };
-
-    const handleSortChange = (key: 'date' | 'amount') => {
-        setFilterSort(prev => {
-            const newDirection = prev.sortBy === key && prev.sortDirection === 'desc' ? 'asc' : 'desc';
-            return {
-                ...prev,
-                sortBy: key,
-                sortDirection: newDirection,
-            };
-        });
-    };
-
-
-    // 2. Transaction List Data (Filtered & Sorted)
-    const filteredAndSortedTransactions = useMemo(() => {
-        let list = transactions;
-
-        // Filter
-        if (filterSort.typeFilter !== 'all') {
-            list = list.filter(tx => tx.type === filterSort.typeFilter);
-        }
-
-        // Sort
-        return [...list].sort((a, b) => {
-            let comparison = 0;
-
-            if (filterSort.sortBy === 'date') {
-                const dateA = new Date(a.date).getTime();
-                const dateB = new Date(b.date).getTime();
-                comparison = dateA - dateB;
-            } else if (filterSort.sortBy === 'amount') {
-                comparison = a.amount - b.amount;
+    const handleSave = async (txData: Partial<Transaction>, id?: string) => {
+        try {
+            const method = id ? 'PUT' : 'POST';
+            const url = id ? `${baseUrl}/transactions/${id}` : `${baseUrl}/transactions`;
+            
+            const res = await fetch(url, {
+                method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(txData),
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.success) {
+                fetchTransactions();
+            } else {
+                alert(result.message || 'Failed to save transaction');
             }
+        } catch (err) {
+            alert('An error occurred while saving');
+        }
+    };
 
-            // Apply direction
-            return filterSort.sortDirection === 'asc' ? comparison : -comparison;
-        });
-    }, [transactions, filterSort]);
-
-    // 3. Grouping for Timeline Display
-    const groupedTransactions = useMemo(() => {
-        return filteredAndSortedTransactions.reduce((groups, transaction) => {
-            const date = transaction.date;
-            if (!groups[date]) groups[date] = [];
-            groups[date].push(transaction);
-            return groups;
-        }, {} as Record<string, Transaction[]>);
-    }, [filteredAndSortedTransactions]);
-
-    const sortedDates = useMemo(() => {
-        const dates = Object.keys(groupedTransactions);
-        // Date sorting direction should always match the date sort direction applied to the list
-        const direction = filterSort.sortDirection;
-
-        return dates.sort((a, b) => {
-            const timeA = new Date(a).getTime();
-            const timeB = new Date(b).getTime();
-            const comparison = timeA - timeB;
-            return direction === 'asc' ? comparison : -comparison;
-        });
-    }, [groupedTransactions, filterSort.sortDirection]);
+    const handleDelete = async (id: string) => {
+        if (!confirm('Delete this transaction?')) return;
+        try {
+            const res = await fetch(`${baseUrl}/transactions/${id}`, {
+                method: 'DELETE',
+                credentials: 'include'
+            });
+            const result = await res.json();
+            if (result.success) {
+                fetchTransactions();
+            } else {
+                alert(result.message || 'Failed to delete transaction');
+            }
+        } catch (err) {
+            alert('An error occurred while deleting');
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-gray-50  font-sans transition-colors duration-300">
-            <div className="">
+        <div className="min-h-screen bg-slate-50/50 pb-20 font-sans">
+            {/* Header & Date Navigation */}
+            <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-xl border-b border-gray-100">
+                <div className="max-w-3xl mx-auto px-4 h-20 flex items-center justify-between">
+                    <button 
+                        onClick={() => changeDate(-1)}
+                        className="p-2 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors"
+                    >
+                        <ChevronLeft size={24} />
+                    </button>
 
-                {/* Header and Controls */}
-                <header className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-extrabold text-gray-900 ">
-                        Finance Tracker
-                    </h1>
-                    <div className="flex items-center space-x-3">
-
-                        <button
-                            onClick={() => handleOpenModal()}
-                            className="px-4 py-2 flex items-center bg-blue-600 text-white font-medium rounded-xl shadow-lg hover:bg-blue-700 hover:shadow-xl transition duration-150 transform active:scale-95"
-                        >
-                            <Plus className="w-5 h-5 mr-1" />
-                            New Transaction
-                        </button>
+                    <div className="text-center group cursor-pointer" onClick={() => setSelectedDate(getTodayDate())}>
+                        <h1 className="text-lg font-bold text-gray-900 flex items-center justify-center gap-2">
+                            {formatDateDisplay(selectedDate)}
+                            <span className="text-blue-500 opacity-0 group-hover:opacity-100 transition-opacity text-xs font-normal underline font-sans">Reset</span>
+                        </h1>
+                        <p className="text-xs text-gray-500 font-medium tracking-wide uppercase">Daily Transactions</p>
                     </div>
-                </header>
 
-                {/* Transaction History Section */}
-                <div className="bg-white  rounded-xl shadow-2xl p-4 sm:p-6 border border-gray-100 ">
+                    <button 
+                        onClick={() => changeDate(1)}
+                        className="p-2 hover:bg-gray-100 rounded-xl text-gray-600 transition-colors"
+                    >
+                        <ChevronRight size={24} />
+                    </button>
+                </div>
+            </div>
 
-                    {/* Filter and Sort Controls */}
-                    <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 border-b border-gray-100  pb-4">
-                        <h2 className="text-xl font-bold text-gray-800  mb-3 sm:mb-0">
-                            Transaction History
-                        </h2>
-
-                        <div className="flex flex-wrap gap-3">
-                            {/* Filter Buttons */}
-                            <div className="flex space-x-1 p-1 bg-gray-100  rounded-xl shadow-inner">
-                                {['all', 'income', 'expense'].map(type => (
-                                    <button
-                                        key={type}
-                                        onClick={() => handleFilterChange(type as TransactionType | 'all')}
-                                        className={`px-3 py-1.5 text-sm font-medium rounded-lg flex items-center transition duration-150 ${filterSort.typeFilter === type
-                                            ? 'bg-blue-600 text-white shadow-md'
-                                            : 'text-gray-700  hover:bg-white'
-                                            }`}
-                                    >
-                                        <Filter className="w-4 h-4 mr-1" />
-                                        {type.charAt(0).toUpperCase() + type.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
-
-                            {/* Sort Buttons */}
-                            <div className="flex space-x-2">
-                                {['date', 'amount'].map(key => (
-                                    <button
-                                        key={key}
-                                        onClick={() => handleSortChange(key as 'date' | 'amount')}
-                                        className={`px-3 py-1.5 text-sm font-medium rounded-lg flex items-center transition duration-150 border ${filterSort.sortBy === key
-                                            ? 'bg-blue-100  border-blue-300  text-blue-800 '
-                                            : 'bg-white  border-gray-200  text-gray-600  hover:bg-gray-100 '
-                                            }`}
-                                    >
-                                        <SortAsc className={`w-4 h-4 mr-1 transition-transform ${filterSort.sortBy === key && filterSort.sortDirection === 'desc' ? 'rotate-180' : ''}`} />
-                                        Sort {key.charAt(0).toUpperCase() + key.slice(1)}
-                                    </button>
-                                ))}
-                            </div>
+            <div className="max-w-3xl mx-auto px-4 mt-8 space-y-8">
+                {/* Daily Summary Cards */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="bg-emerald-600 rounded-[2rem] p-6 text-white shadow-xl shadow-emerald-200/50 relative overflow-hidden group">
+                        <div className="relative z-10">
+                            <p className="text-emerald-100 text-sm font-semibold mb-1">Income</p>
+                            <h2 className="text-2xl font-bold">{formatCurrency(summary.income)}</h2>
                         </div>
+                        <TrendingUp className="absolute right-[-10px] bottom-[-10px] w-24 h-24 text-emerald-500/30 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
                     </div>
 
-                    {/* Transaction Timeline / List */}
-                    <div className="space-y-6">
-                        {filteredAndSortedTransactions.length > 0 ? (
-                            sortedDates.map(dateKey => (
-                                // This is the new Timeline Grouping element, which replaces the fixed-height card.
-                                <div key={dateKey} className="bg-white ">
-                                    {/* Date Header */}
-                                    <div className="sticky top-0 z-10 bg-gray-50  px-4 py-2 mb-2 rounded-lg shadow-sm flex items-center space-x-2 text-md font-bold text-gray-700  border-l-4 border-blue-500">
-                                        <Calendar className="w-5 h-5 text-blue-500" />
-                                        <span>{formatDate(dateKey)}</span>
-                                    </div>
+                    <div className="bg-rose-600 rounded-[2rem] p-6 text-white shadow-xl shadow-rose-200/50 relative overflow-hidden group">
+                        <div className="relative z-10">
+                            <p className="text-rose-100 text-sm font-semibold mb-1">Expenses</p>
+                            <h2 className="text-2xl font-bold">{formatCurrency(summary.expense)}</h2>
+                        </div>
+                        <TrendingDown className="absolute right-[-10px] bottom-[-10px] w-24 h-24 text-rose-500/30 -rotate-12 group-hover:scale-110 transition-transform duration-500" />
+                    </div>
 
-                                    {/* List of Transactions for that Date */}
-                                    <div className="bg-white  rounded-xl shadow-md divide-y divide-gray-100  border border-gray-200 ">
-                                        {groupedTransactions[dateKey].map(tx => (
-                                            <TransactionItem
-                                                key={tx.id}
-                                                transaction={tx}
-                                                onEdit={handleOpenModal}
-                                                onDelete={handleDeleteTransaction}
-                                            />
-                                        ))}
-                                    </div>
-                                </div>
-                            ))
-                        ) : (
-                            <div className="p-12 text-center text-gray-500  bg-gray-50  rounded-xl border border-dashed border-gray-300 ">
-                                <Filter className="w-10 h-10 mx-auto mb-4 text-gray-400" />
-                                <p className="text-lg font-medium">No transactions found</p>
-                                <p className="text-sm">Try adjusting your filters or adding a new record.</p>
-                                <button
-                                    onClick={() => handleFilterChange('all')}
-                                    className="mt-4 text-blue-600 hover:text-blue-800   font-medium underline underline-offset-2"
-                                >
-                                    Reset Filters
-                                </button>
-                            </div>
+                    <div className="bg-white rounded-[2rem] p-6 text-gray-900 border border-gray-100 shadow-xl shadow-gray-200/30 relative overflow-hidden group">
+                        <div className="relative z-10">
+                            <p className="text-gray-500 text-sm font-semibold mb-1">Net Balance</p>
+                            <h2 className={`text-2xl font-bold ${summary.income - summary.expense >= 0 ? 'text-emerald-600' : 'text-rose-600'}`}>
+                                {formatCurrency(summary.income - summary.expense)}
+                            </h2>
+                        </div>
+                        <Wallet className="absolute right-[-10px] bottom-[-10px] w-24 h-24 text-gray-100 group-hover:scale-110 transition-transform duration-500" />
+                    </div>
+                </div>
+
+                {/* Quick Action Buttons */}
+                <div className="flex gap-4">
+                    <button 
+                        onClick={() => handleOpenAdd('income')}
+                        className="flex-1 bg-white border-2 border-emerald-100 hover:border-emerald-500 hover:bg-emerald-50 py-4 rounded-2xl flex items-center justify-center gap-2 text-emerald-700 font-bold transition-all shadow-sm group font-sans"
+                    >
+                        <div className="w-8 h-8 rounded-full bg-emerald-100 flex items-center justify-center group-hover:bg-emerald-500 group-hover:text-white transition-colors">
+                            <Plus size={20} />
+                        </div>
+                        Add Income
+                    </button>
+                    <button 
+                        onClick={() => handleOpenAdd('expense')}
+                        className="flex-1 bg-white border-2 border-rose-100 hover:border-rose-500 hover:bg-rose-50 py-4 rounded-2xl flex items-center justify-center gap-2 text-rose-700 font-bold transition-all shadow-sm group font-sans"
+                    >
+                        <div className="w-8 h-8 rounded-full bg-rose-100 flex items-center justify-center group-hover:bg-rose-500 group-hover:text-white transition-colors">
+                            <Plus size={20} />
+                        </div>
+                        Add Expense
+                    </button>
+                </div>
+
+                {/* Transaction List */}
+                <div className="space-y-4 font-sans">
+                    <div className="flex items-center justify-between">
+                        <h2 className="text-xl font-bold text-gray-900">Today's History</h2>
+                        {!loading && (
+                            <span className="text-sm font-semibold text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                                {transactions.length} Items
+                            </span>
                         )}
                     </div>
-                    <div className="mt-8 flex justify-between items-center pt-4 border-t border-gray-100">
-                        <button
-                            className="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
-                        >
-                            <ChevronLeft className="w-4 h-4 mr-1" />
-                            Previous
-                        </button>
 
-                        <span className="text-sm font-medium text-gray-700">
-                            Page <span className="font-bold">1</span> of <span className="font-bold">3</span>
-                        </span>
-
-                        <button
-                            className="flex items-center px-4 py-2 text-sm font-medium rounded-lg text-gray-700 bg-white border border-gray-300 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition duration-150"
-                        >
-                            Next
-                            <ChevronRight className="w-4 h-4 ml-1" />
-                        </button>
+                    <div className="space-y-3 min-h-[200px]">
+                        {loading ? (
+                            <div className="flex flex-col items-center justify-center py-20 gap-4">
+                                <Loader2 className="animate-spin text-blue-500" size={40} />
+                                <p className="text-gray-500 font-medium">Loading transactions...</p>
+                            </div>
+                        ) : error ? (
+                            <div className="py-20 text-center bg-rose-50 rounded-[2rem] border border-rose-100 text-rose-600">
+                                <p className="font-bold">Error loading data</p>
+                                <p className="text-sm">{error}</p>
+                                <button onClick={fetchTransactions} className="mt-4 underline">Try again</button>
+                            </div>
+                        ) : transactions.length > 0 ? (
+                            transactions.map(tx => (
+                                <TransactionItem 
+                                    key={tx._id} 
+                                    transaction={tx} 
+                                    onEdit={handleEdit}
+                                    onDelete={handleDelete}
+                                />
+                            ))
+                        ) : (
+                            <div className="py-20 text-center bg-white rounded-[2rem] border border-dashed border-gray-200">
+                                <div className="w-20 h-20 bg-gray-50 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <Clock className="text-gray-300" size={40} />
+                                </div>
+                                <h3 className="text-lg font-bold text-gray-900">No transactions yet</h3>
+                                <p className="text-gray-500 text-sm">Start tracking by adding your first record.</p>
+                            </div>
+                        )}
                     </div>
                 </div>
             </div>
 
             <TransactionModal
                 isOpen={isModalOpen}
-                onClose={handleCloseModal}
-                onSave={handleSaveTransaction}
+                onClose={() => setIsModalOpen(false)}
+                onSave={handleSave}
                 editingTx={editingTx}
+                defaultType={modalType}
+                selectedDate={selectedDate}
             />
         </div>
     );

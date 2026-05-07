@@ -15,8 +15,8 @@ type PaymentDTO = {
     loanAmount: number;
     paymentMethod: number;
     paymentDate: string;
-    borrower: string;
-    borrowerId: string;
+    contact: string;
+    contactId: string;
     loanId: string;
 }
 
@@ -43,7 +43,7 @@ const PaymentTable = () => {
                 <table className="w-full text-left">
                     <thead>
                         <tr className="bg-slate-50/80">
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Borrower</th>
+                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Contact</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Loan</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Amount</th>
                             <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Date</th>
@@ -54,9 +54,9 @@ const PaymentTable = () => {
                         {data?.payments && data.payments.map((payment, index) => (
                             <tr className="py-4 px-6 text-sm font-medium text-slate-900 border-b border-b-gray-200" key={index}>
                                 <td className="py-4 px-6 text-sm font-medium text-slate-900">
-                                    <div>{payment.borrower}</div>
+                                    <div>{payment.contact}</div>
                                     <div className="text-xs text-slate-500">
-                                        {payment.borrowerId}
+                                        {payment.contactId}
                                     </div>
                                 </td>
                                 <td className="py-4 px-6 text-sm font-medium text-slate-900">

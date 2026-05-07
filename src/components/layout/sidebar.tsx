@@ -11,7 +11,7 @@ const Sidebar = () => {
     const menuItems = [
         { name: "Dashboard", href: "/", emoji: "🏠" },
         { name: "Transactions", href: "/transactions", emoji: "💰" },
-        { name: "Borrowers", href: "/borrowers", emoji: "👤" },
+        { name: "Contacts", href: "/contacts", emoji: "👤" },
         { name: "Loans", href: "/loans", emoji: "💸" },
         { name: "Payments", href: "/payments", emoji: "💰" },
         //{ name: "Agreements", href: "/agreements", emoji: "📑", },

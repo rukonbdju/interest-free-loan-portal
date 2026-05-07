@@ -49,7 +49,7 @@ const AddPayment = () => {
                 headers: {
                     'content-type': 'application/json'
                 },
-                body: JSON.stringify({ ...formData, borrower: loan?.borrower._id, loan: loan?._id, createdBy: user?._id })
+                body: JSON.stringify({ ...formData, contact: loan?.contact?._id, loan: loan?._id, createdBy: user?._id })
             })
             const result = await res.json()
             if (result.success) {

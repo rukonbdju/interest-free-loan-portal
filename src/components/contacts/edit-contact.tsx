@@ -1,22 +1,31 @@
 "use client";
 
 import React, { useState } from "react";
-import { User, Phone, Mail, IdCard, MapPin, SendHorizonal, } from "lucide-react";
+import { User, Phone, Mail, MapPin, SendHorizonal } from "lucide-react";
 import { InputField } from "../shared/input-field";
 import { baseUrl } from "@/utils/api-url";
 import { Button } from "../shared/button";
 import AlertBox from "../shared/alert";
-type BorrowerDTO = {
-    id: string;
-    borrowerId: string;
+import { useContacts } from "@/contexts/contact-context";
+
+type ContactDTO = {
+    _id: string;
+    contactId: string;
     name: string;
     phone: string;
     email: string;
     address: string;
 }
-export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
+
+interface EditContactFormProps {
+    contact: ContactDTO;
+    onSuccess?: () => void;
+}
+
+export const EditContactForm = ({ contact, onSuccess }: EditContactFormProps) => {
     const [alert, setAlert] = useState({ type: '', message: '' })
     const [loading, setLoading] = useState(false)
+    const { setContacts } = useContacts();
     const [formData, setFormData] = useState({});
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -27,17 +36,23 @@ export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
         e.preventDefault();
         setLoading(true)
         try {
-            const res = await fetch(baseUrl + `/borrowers/${borrower.id}`, {
+            const res = await fetch(baseUrl + `/contacts/${contact._id}`, {
                 credentials: 'include',
                 method: "PUT",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ ...formData, }),
+                body: JSON.stringify({ ...formData }),
             });
 
             const result = await res.json();
             if (result.success) {
-                setAlert({ type: 'success', message: 'Borrower successfully updated!' })
-                setFormData({});
+                setAlert({ type: 'success', message: 'Contact successfully updated!' })
+                
+                // Update local state
+                setContacts(prev => prev.map(c => c._id === contact._id ? { ...c, ...formData } : c));
+                
+                if (onSuccess) {
+                    setTimeout(() => onSuccess(), 1000);
+                }
             } else {
                 if (res?.status && res.status < 500) {
                     setAlert({ type: 'error', message: result?.message || 'Something went wrong, try again!' })
@@ -55,27 +70,23 @@ export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
     return (
         <form
             onSubmit={handleSubmit}
-            className=" p-4 bg-white rounded-xl space-y-4 shadow-md"
+            className="space-y-4"
         >
-            {(alert.message && alert.type) && <AlertBox type={alert.type as 'info' | 'error' | 'warning' | 'success'} message={alert.message} />
+            <div className="flex justify-between items-center mb-4">
+                <h2 className="text-2xl font-bold text-gray-800">Edit Contact</h2>
+                <span className="text-xs font-bold text-blue-600 bg-blue-50 px-3 py-1 rounded-full uppercase tracking-tighter">
+                    ID: {contact.contactId}
+                </span>
+            </div>
 
-            }
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                <InputField
-                    icon={<IdCard className="w-4 h-4" />}
-                    label="Borrower ID"
-                    name="borrowerId"
-                    placeholder="eg. B-0001"
-                    defaultValue={borrower.borrowerId}
-                    onChange={handleChange}
-                    required={true}
-                    disabled={true}
-                />
+            {(alert.message && alert.type) && <AlertBox type={alert.type as 'info' | 'error' | 'warning' | 'success'} message={alert.message} />}
+            
+            <div className="grid grid-cols-1 gap-4">
                 <InputField
                     icon={<User className="w-4 h-4" />}
                     label="Full Name"
                     name="name"
-                    defaultValue={borrower.name}
+                    defaultValue={contact.name}
                     onChange={handleChange}
                     required={true}
                 />
@@ -84,32 +95,34 @@ export const EditBorrowerForm = ({ borrower }: { borrower: BorrowerDTO }) => {
                     icon={<Phone className="w-4 h-4" />}
                     label="Phone Number"
                     name="phone"
-                    defaultValue={borrower.phone}
+                    defaultValue={contact.phone}
                     onChange={handleChange}
                     type="tel"
+                    required={true}
                 />
 
                 <InputField
                     icon={<Mail className="w-4 h-4" />}
-                    label="Email"
+                    label="Email (Optional)"
                     name="email"
-                    defaultValue={borrower.email}
+                    defaultValue={contact.email}
                     onChange={handleChange}
                     type="email"
                 />
 
                 <InputField
                     icon={<MapPin className="w-4 h-4" />}
-                    label="Address"
+                    label="Address (Optional)"
                     name="address"
-                    defaultValue={borrower.address}
+                    defaultValue={contact.address}
                     onChange={handleChange}
                 />
             </div>
 
-
-            <div className="flex justify-end">
-                <Button disabled={loading || Object.keys(formData).length <= 0} icon={<SendHorizonal className="w-4 h-4" />} >Submit</Button>
+            <div className="flex justify-end pt-4">
+                <Button disabled={loading || Object.keys(formData).length <= 0} icon={<SendHorizonal className="w-4 h-4" />} >
+                    {loading ? 'Saving...' : 'Save Changes'}
+                </Button>
             </div>
         </form>
     );

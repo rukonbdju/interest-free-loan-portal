@@ -1,71 +1,117 @@
-import { Plus } from "lucide-react";
+'use client'
+import React, { useState } from "react";
+import { Plus, Loader2 } from "lucide-react";
+import { baseUrl } from "@/utils/api-url";
 
-const QuickTransactionAdd = () => {
+interface QuickTransactionAddProps {
+    onSuccess?: () => void;
+}
 
-    const inputStyle = "w-full p-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition duration-150";
+const QuickTransactionAdd: React.FC<QuickTransactionAddProps> = ({ onSuccess }) => {
+    const [type, setType] = useState<'income' | 'expense'>('expense');
+    const [amount, setAmount] = useState('');
+    const [description, setDescription] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
+
+    const inputStyle = "w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 transition-all outline-none";
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!amount || !description) return;
+
+        setIsSubmitting(true);
+        try {
+            const today = new Date().toISOString().split('T')[0];
+            const res = await fetch(`${baseUrl}/transactions`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: parseFloat(amount),
+                    description,
+                    type,
+                    date: today
+                }),
+                credentials: 'include'
+            });
+
+            const result = await res.json();
+            if (result.success) {
+                setAmount('');
+                setDescription('');
+                onSuccess?.();
+            } else {
+                alert(result.message || 'Failed to record transaction');
+            }
+        } catch (error) {
+            alert('Connection error');
+        } finally {
+            setIsSubmitting(false);
+        }
+    };
 
     return (
-        <form className="p-6 bg-white rounded-xl shadow-lg border border-gray-100 space-y-4">
+        <form onSubmit={handleSubmit} className="p-6 bg-white rounded-2xl shadow-sm border border-gray-100 space-y-4">
             <h3 className="text-xl font-bold text-gray-800">Quick Add</h3>
 
-            <div>
-                <div className="flex space-x-3">
-                    <label className={`flex-1 p-3 text-center rounded-lg cursor-pointer transition-colors ${true ? 'bg-green-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}>
-                        <input
-                            type="radio"
-                            name="type"
-                            value="Income"
-                            checked={true}
-                            className="hidden"
-                        />
-                        Income
-                    </label>
-                    <label className={`flex-1 p-3 text-center rounded-lg cursor-pointer transition-colors ${true ? 'bg-red-500 text-white shadow-md' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                        }`}>
-                        <input
-                            type="radio"
-                            name="type"
-                            value="Expense"
-                            checked={true}
-                            className="hidden"
-                        />
-                        Expense
-                    </label>
+            <div className="flex p-1 bg-gray-100 rounded-xl">
+                <button
+                    type="button"
+                    onClick={() => setType('income')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        type === 'income' ? 'bg-emerald-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'
+                    }`}
+                >
+                    Income
+                </button>
+                <button
+                    type="button"
+                    onClick={() => setType('expense')}
+                    className={`flex-1 py-2 rounded-lg text-sm font-semibold transition-all ${
+                        type === 'expense' ? 'bg-rose-500 text-white shadow-sm' : 'text-gray-500 hover:bg-gray-200'
+                    }`}
+                >
+                    Expense
+                </button>
+            </div>
+
+            <div className="space-y-4">
+                <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 ml-1">Amount ($)</label>
+                    <input
+                        type="number"
+                        value={amount}
+                        onChange={(e) => setAmount(e.target.value)}
+                        placeholder="0.00"
+                        className={inputStyle}
+                        required
+                        min="0.01"
+                        step="0.01"
+                    />
                 </div>
-            </div>
 
-            <div>
-                <label htmlFor="amount" className="block text-sm font-medium text-gray-700 mb-1">Amount ($)</label>
-                <input
-                    type="number"
-                    id="amount"
-                    name="amount"
-                    placeholder="e.g., 4500"
-                    className={inputStyle}
-                    required
-                    min="0.01"
-                    step="0.01"
-                />
-            </div>
-
-            <div>
-                <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <input
-                    type="text"
-                    id="description"
-                    name="description"
-                    placeholder="e.g., Monthly Salary"
-                    className={inputStyle}
-                    required
-                />
+                <div>
+                    <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-1 ml-1">Description</label>
+                    <input
+                        type="text"
+                        value={description}
+                        onChange={(e) => setDescription(e.target.value)}
+                        placeholder="What's this for?"
+                        className={inputStyle}
+                        required
+                    />
+                </div>
             </div>
 
             <button
                 type="submit"
-                className={`w-full py-3 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-4 focus:ring-indigo-500 focus:ring-opacity-50 transition duration-150 flex items-center justify-center`}
+                disabled={isSubmitting}
+                className="w-full py-3 px-4 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100 hover:bg-indigo-700 active:scale-[0.98] transition-all flex items-center justify-center disabled:opacity-70"
             >
-                <Plus className="w-5 h-5 mr-2" />
+                {isSubmitting ? (
+                    <Loader2 className="animate-spin mr-2" size={20} />
+                ) : (
+                    <Plus className="w-5 h-5 mr-2" />
+                )}
                 Record Transaction
             </button>
         </form>

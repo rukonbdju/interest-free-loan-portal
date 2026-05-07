@@ -4,7 +4,7 @@ import { useParams } from 'next/navigation';
 import PaymentHistory from '@/components/loans/payment-history';
 import { LoanPaymentProvider } from '@/contexts/loan-payment-context';
 import LoanDetailsHeader from '@/components/loans/loan-details-header';
-import BorrowerInfoCard from '@/components/loans/borrower-info-card';
+import ContactInfoCard from '@/components/loans/contact-info-card';
 import LoanInfoCard from '@/components/loans/loan-info-card';
 import LoanOverviewCard from '@/components/loans/loan-overview-card';
 
@@ -29,7 +29,7 @@ const LoanDetailsPage = () => {
 
                         {/* Right Column */}
                         <div className="flex flex-col gap-6">
-                            <BorrowerInfoCard />
+                            <ContactInfoCard />
                             <LoanInfoCard />
                         </div>
                     </div>
