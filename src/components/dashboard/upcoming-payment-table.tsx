@@ -35,34 +35,43 @@ const Status = ({ status }: { status: string; }) => {
 const UpcomingPaymentTable = () => {
     const { data } = useFetchData<UpcomingPaymentType[]>('/loans/upcoming-payments')
     return (
-        <div className="bg-white p-6 sm:p-8 rounded-2xl shadow-sm">
-            <h2 className="text-xl font-semibold text-slate-800 mb-6">Upcoming Payments</h2>
-            <div className="overflow-x-auto">
-                <table className="w-full text-left">
-                    <thead>
-                        <tr className="bg-slate-50/80">
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Contact</th>
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Due Date</th>
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Amount</th>
-                            <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Status</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {data && data.map((payment, index) => (
-                            <tr key={index} className="border-b border-slate-200/70 last:border-b-0 hover:bg-slate-50/50">
-                                <td className="py-4 px-6 text-sm font-medium text-slate-900">{payment.contact}</td>
-                                <td className="py-4 px-6 text-sm text-slate-600">{formatDate(payment.dueDate)}</td>
-                                <td className="py-4 px-6 text-sm font-semibold text-slate-800">{payment.amount}</td>
-                                <td className="py-4 px-6 text-sm">
-                                    <Status status={payment.status} />
-                                </td>
+        <div className="bg-white/50 backdrop-blur-xl rounded-3xl border border-white shadow-xl overflow-hidden p-2">
+
+
+            <div className="p-6 md:p-8 space-y-6">
+                <div>
+                    <h2 className="text-xl font-bold text-gray-900">Upcoming Payments</h2>
+                    <p className="text-xs text-gray-500 font-medium tracking-wide uppercase">Settlement Queue</p>
+                </div>
+                <div className="overflow-x-auto">
+                    <table className="w-full text-left">
+                        <thead>
+                            <tr className="bg-slate-50/80">
+                                <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Contact</th>
+                                <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Due Date</th>
+                                <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Amount</th>
+                                <th className="py-3 px-6 text-xs font-semibold uppercase text-slate-500 tracking-wider">Status</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            {data && data.map((payment, index) => (
+                                <tr key={index} className="border-b border-slate-200/70 last:border-b-0 hover:bg-slate-50/50">
+                                    <td className="py-4 px-6 text-sm font-medium text-slate-900">{payment.contact}</td>
+                                    <td className="py-4 px-6 text-sm text-slate-600">{formatDate(payment.dueDate)}</td>
+                                    <td className="py-4 px-6 text-sm font-semibold text-slate-800">{payment.amount}</td>
+                                    <td className="py-4 px-6 text-sm">
+                                        <Status status={payment.status} />
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
             </div>
         </div>
     )
+
 }
+
 
 export default UpcomingPaymentTable

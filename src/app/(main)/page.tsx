@@ -1,134 +1,90 @@
 'use client'
-import React, { useState, useEffect } from 'react';
-import FinancialStat from "@/components/dashboard/financial-stat";
-import LoanSummary from "@/components/dashboard/loan-summary";
+import React, { useState } from 'react';
+import DashboardStats from "@/components/dashboard/dashboard-stats";
 import QuickTransactionAdd from "@/components/dashboard/quick-transaction-add";
 import TodaysTransactions from "@/components/dashboard/todays-transactions";
 import UpcomingPaymentTable from "@/components/dashboard/upcoming-payment-table";
-import { useAuth } from '@/contexts/auth-context';
-import { 
-    UserPlus, 
-    HandCoins, 
-    ArrowRightLeft, 
-    LayoutDashboard,
-    Bell,
-    Settings,
-    ArrowUpRight,
-    Search
+import {
+    UserPlus,
+    HandCoins,
+    ArrowRightLeft,
+    Plus,
+    ChevronDown
 } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Home() {
     const [refreshKey, setRefreshKey] = useState(0);
-    const { user } = useAuth();
-    const [greeting, setGreeting] = useState('Welcome back');
-
-    useEffect(() => {
-        const hour = new Date().getHours();
-        if (hour < 12) setGreeting('Good Morning');
-        else if (hour < 18) setGreeting('Good Afternoon');
-        else setGreeting('Good Evening');
-    }, []);
+    const [isActionOpen, setIsActionOpen] = useState(false);
 
     const handleRefresh = () => {
         setRefreshKey(prev => prev + 1);
     };
 
     return (
-        <main className="min-h-screen bg-slate-50/50 pb-20">
-            <div className="w-full mx-auto">
-                {/* Modern Header Section */}
-                <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end mb-12 gap-6">
+        <main className="min-h-screen">
+            <div className="w-full">
+
+                
+                {/* Minimal Header with Dropdown */}
+                <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-6 mb-10">
                     <div>
-                        <div className="flex items-center gap-2 mb-3">
-                            <div className="w-2 h-2 bg-indigo-600 rounded-full animate-pulse"></div>
-                            <span className="text-[10px] font-black text-indigo-600 uppercase tracking-widest">System Operational</span>
-                        </div>
-                        <h1 className="text-4xl font-black text-gray-900 tracking-tighter">
-                            {greeting}, <span className="text-indigo-600">{user?.name?.split(' ')[0] || 'User'}</span>
-                        </h1>
-                        <p className="text-gray-500 font-medium mt-1">Here's a snapshot of your financial ecosystem today.</p>
+                        <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Dashboard Overview</h1>
+                        <p className="text-xs font-bold text-gray-400 uppercase tracking-widest mt-1">Real-time Metrics</p>
                     </div>
                     
-                    <div className="flex items-center gap-3">
-                        <div className="hidden sm:flex items-center gap-2 px-4 py-2 bg-white rounded-2xl border border-gray-100 shadow-sm text-sm font-bold text-gray-600">
-                            <LayoutDashboard size={16} className="text-indigo-600" />
-                            <span>v2.0 Beta</span>
-                        </div>
-                        <button className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-colors text-gray-500 relative group">
-                            <Bell size={20} />
-                            <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full border-2 border-white group-hover:animate-ping"></span>
+                    <div className="relative w-full sm:w-auto">
+                        <button 
+                            onClick={() => setIsActionOpen(!isActionOpen)}
+                            onBlur={() => setTimeout(() => setIsActionOpen(false), 200)}
+                            className="w-full sm:w-auto px-6 py-3.5 bg-indigo-600 text-white font-bold rounded-xl shadow-lg shadow-indigo-100/50 hover:bg-indigo-700 active:scale-95 transition-all flex items-center justify-center sm:justify-start gap-2 group"
+                        >
+                            <Plus size={18} className="stroke-[3]" />
+                            <span>Quick Action</span>
+                            <ChevronDown size={16} className={`transition-transform duration-300 ${isActionOpen ? 'rotate-180' : ''}`} />
                         </button>
-                        <button className="p-3 bg-white rounded-2xl border border-gray-100 shadow-sm hover:bg-gray-50 transition-colors text-gray-500">
-                            <Settings size={20} />
-                        </button>
+                        
+                        {isActionOpen && (
+                            <div className="absolute right-0 mt-3 w-full sm:w-64 bg-white rounded-2xl shadow-xl border border-gray-50 py-3 z-50 animate-in fade-in zoom-in-95 duration-200 origin-top sm:origin-top-right">
+                                <ActionLink 
+                                    href="/contacts/new" 
+                                    icon={<UserPlus size={18} />} 
+                                    label="Onboard Contact" 
+                                    description="Add new borrower to system"
+                                />
+                                <ActionLink 
+                                    href="/loans/new" 
+                                    icon={<HandCoins size={18} />} 
+                                    label="Issue New Loan" 
+                                    description="Create new loan agreement"
+                                />
+                                <ActionLink 
+                                    href="/transactions" 
+                                    icon={<ArrowRightLeft size={18} />} 
+                                    label="View All Logs" 
+                                    description="History of all movements"
+                                />
+                            </div>
+                        )}
                     </div>
                 </div>
 
-                {/* Financial Overview - Premium Cards */}
-                <FinancialStat refreshKey={refreshKey} />
-                
-                {/* Loan Metrics */}
-                <div className="mb-12">
-                    <div className="flex items-center gap-2 mb-6">
-                        <h2 className="text-xl font-black text-gray-900 tracking-tight">Loan Portfolio Performance</h2>
-                        <div className="h-px flex-1 bg-gray-100 ml-4"></div>
-                    </div>
-                    <LoanSummary />
-                </div>
+                {/* Dashboard Stats (Unified 8 cards) */}
+                <DashboardStats refreshKey={refreshKey} />
+
+                <div className="mt-8 sm:mt-12"></div>
 
                 {/* Grid Layout for Detailed View */}
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-                    
                     {/* Main Content (Transactions & Payments) */}
-                    <div className="lg:col-span-8 space-y-10">
-                        <div className="bg-white/50 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-2xl overflow-hidden p-2">
-                            <div className="p-6">
-                                <TodaysTransactions refreshKey={refreshKey} />
-                            </div>
-                        </div>
-                        
-                        <div className="bg-white/50 backdrop-blur-xl rounded-[2.5rem] border border-white shadow-2xl overflow-hidden p-2">
-                            <div className="p-6">
-                                <UpcomingPaymentTable />
-                            </div>
-                        </div>
+                    <div className="lg:col-span-8 space-y-8 sm:space-y-10">
+                        <TodaysTransactions refreshKey={refreshKey} />
+                        <UpcomingPaymentTable />
                     </div>
 
                     {/* Sidebar (Actions & Quick Add) */}
-                    <div className="lg:col-span-4 space-y-8">
-                        {/* Quick Actions Container */}
-                        <div className="bg-white rounded-[2.5rem] p-8 shadow-xl border border-gray-50 relative overflow-hidden group">
-                            <div className="absolute top-0 right-0 w-32 h-32 -mr-16 -mt-16 bg-indigo-50 rounded-full opacity-30 group-hover:scale-125 transition-transform duration-700"></div>
-                            
-                            <h2 className="text-xl font-black text-gray-900 mb-8 relative z-10">Quick Actions</h2>
-                            
-                            <div className="flex flex-col gap-4 relative z-10">
-                                <ActionItem 
-                                    href="/contacts/new" 
-                                    icon={<UserPlus size={20} />} 
-                                    label="Onboard Contact" 
-                                    color="indigo" 
-                                />
-                                <ActionItem 
-                                    href="/loans/new" 
-                                    icon={<HandCoins size={20} />} 
-                                    label="Issue New Loan" 
-                                    color="emerald" 
-                                />
-                                <ActionItem 
-                                    href="/transactions" 
-                                    icon={<ArrowRightLeft size={20} />} 
-                                    label="View All Logs" 
-                                    color="amber" 
-                                />
-                            </div>
-                        </div>
-
-                        {/* Quick Add Form Container */}
-                        <div className="bg-white rounded-[2.5rem] shadow-xl border border-gray-50 overflow-hidden">
-                            <QuickTransactionAdd onSuccess={handleRefresh} />
-                        </div>
+                    <div className="lg:col-span-4">
+                        <QuickTransactionAdd onSuccess={handleRefresh} />
                     </div>
                 </div>
             </div>
@@ -136,20 +92,20 @@ export default function Home() {
     );
 }
 
-const ActionItem = ({ href, icon, label, color }: { href: string, icon: any, label: string, color: 'indigo' | 'emerald' | 'amber' }) => {
-    const colors = {
-        indigo: "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 shadow-indigo-100/50",
-        emerald: "bg-emerald-50 text-emerald-700 hover:bg-emerald-100 shadow-emerald-100/50",
-        amber: "bg-amber-50 text-amber-700 hover:bg-amber-100 shadow-amber-100/50",
-    };
 
-    return (
-        <Link href={href} className={`group w-full py-4 px-6 ${colors[color]} rounded-2xl font-bold transition-all flex items-center justify-between shadow-lg`}>
-            <div className="flex items-center gap-3">
-                <span className="group-hover:scale-110 transition-transform">{icon}</span>
-                <span className="text-sm tracking-tight">{label}</span>
-            </div>
-            <ArrowUpRight size={18} className="opacity-0 group-hover:opacity-100 group-hover:translate-x-1 group-hover:-translate-y-1 transition-all" />
-        </Link>
-    );
-};
+const ActionLink = ({ href, icon, label, description }: { href: string, icon: any, label: string, description: string }) => (
+
+    <Link
+        href={href}
+        className="flex items-center gap-4 px-5 py-3 hover:bg-slate-50 transition-colors group"
+    >
+        <div className="w-10 h-10 rounded-xl bg-slate-50 flex items-center justify-center text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition-all">
+            {icon}
+        </div>
+        <div>
+            <p className="text-sm font-bold text-gray-800">{label}</p>
+            <p className="text-[10px] text-gray-400 font-medium">{description}</p>
+        </div>
+    </Link>
+);
+
